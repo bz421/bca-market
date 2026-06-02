@@ -18,7 +18,7 @@ interface CustomSession extends Session {
         firstName?: string | null;
         lastName?: string | null;
         email?: string | null;
-        money?: number | null;
+        money?: string | null;
         admin?: boolean | null;
     };
 }
@@ -42,14 +42,14 @@ const handler = NextAuth({
 
                 // Check if user exists
                 const existingUser = await prisma.user.findUnique({
-                    where: { emailId: user.email },
+                    where: { email: user.email },
                 });
 
                 if (!existingUser) {
                     // Create new user if doesn't exist
                     await prisma.user.create({
                         data: {
-                            emailId: user.email,
+                            email: user.email,
                             firstName: profile?.name?.split(" ")[0] || "",
                             lastName: profile?.name?.split(" ").slice(1).join(" ") || "",
                         },
@@ -65,7 +65,7 @@ const handler = NextAuth({
                         },
                     },
                     create: {
-                        userId: (existingUser?.userId || (await prisma.user.findUnique({ where: { emailId: user.email } }))!.userId),
+                        userId: (existingUser?.id || (await prisma.user.findUnique({ where: { email: user.email } }))!.id),
                         type: account.type,
                         provider: account.provider,
                         providerAccountId: account.providerAccountId,
@@ -91,14 +91,14 @@ const handler = NextAuth({
         async session({ session }) {
             if (session.user?.email) {
                 const user = await prisma.user.findUnique({
-                    where: { emailId: session.user.email },
+                    where: { email: session.user.email },
                 });
                 if (user) {
                     const customUser = session.user as CustomSession['user'];
-                    customUser.id = user.userId.toString();
+                    customUser.id = user.id.toString();
                     customUser.firstName = user.firstName;
                     customUser.lastName = user.lastName || "";
-                    customUser.money = user.money ?? 1000;
+                    customUser.money = user.money?.toString() ?? "1000.00";
                     customUser.admin = user.admin ?? false;
                     session.user = customUser;
                 }
