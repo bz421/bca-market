@@ -18,7 +18,8 @@ interface CustomSession extends Session {
         firstName?: string | null;
         lastName?: string | null;
         email?: string | null;
-        image?: string | null;
+        money?: number | null;
+        admin?: boolean | null;
     };
 }
 
@@ -97,6 +98,8 @@ const handler = NextAuth({
                     customUser.id = user.userId.toString();
                     customUser.firstName = user.firstName;
                     customUser.lastName = user.lastName || "";
+                    customUser.money = user.money ?? 1000;
+                    customUser.admin = user.admin ?? false;
                     session.user = customUser;
                 }
             }

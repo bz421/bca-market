@@ -19,6 +19,9 @@ export default function Home() {
             <p>
               You are logged in as {session?.user.email}. 
             </p>
+            <p>
+              Money: {session?.user.money}
+            </p>
             </div>
         </div>
         <button className="mt-10 rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600 cursor-pointer" 

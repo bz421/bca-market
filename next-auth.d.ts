@@ -6,6 +6,8 @@ declare module "next-auth" {
             id?: string | null;
             firstName?: string | null;
             lastName?: string | null;
+            money?: number | null;
+            admin?: boolean | null;
         };
     }
 
@@ -13,6 +15,8 @@ declare module "next-auth" {
         id?: string | null;
         firstName?: string | null;
         lastName?: string | null;
+        money?: number | null;
+        admin?: boolean | null;
     }
 }
 
@@ -21,5 +25,7 @@ declare module "next-auth/jwt" {
         id?: string | null;
         firstName?: string | null;
         lastName?: string | null;
+        money?: number | null;
+        admin?: boolean | null;
     }
 }
