@@ -1,33 +1,63 @@
-'use client'
+import Link from 'next/link';
+import { authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/prisma';
+import SignOutButton from '@/app/components/sign-out-button';
+import { RequestMarketButton } from './components/add-market-button';
 
-import { signOut, useSession } from 'next-auth/react';
+export default async function Home() {
+  const session = await getServerSession(authOptions);
 
-export default function Home() {
-  const { data: session } = useSession();
+  if (!session) {
+    redirect('/auth/signin');
+  }
+
+  const markets = await prisma.market.findMany({
+    orderBy: [{ closeTime: 'asc' }, { createdAt: 'desc' }],
+  });
 
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            Welcome!
-          </h1>
-          <div className="max-w-xs text-lg leading-7 text-gray-600 dark:text-gray-400">
-            <p>
-              Hello, {session?.user.firstName} {session?.user.lastName}!
+    <div className="min-h-screen bg-zinc-50">
+      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10">
+        <header className="flex items-start justify-between gap-6 rounded-2xl bg-white p-6 shadow-sm">
+          <div>
+            <p className="text-sm text-zinc-500">
+              Hello, {session.user?.firstName}!
             </p>
-            <p>
-              You are logged in as {session?.user.email}. 
+            <h1 className="mt-2 text-3xl font-semibold text-zinc-950">
+              Welcome to BCA Market!
+            </h1>
+            <p className="mt-2 text-zinc-600">
+              You are logged in as {session.user?.email}
             </p>
-            <p>
-              Money: {session?.user.money}
-            </p>
-            </div>
-        </div>
-        <button className="mt-10 rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600 cursor-pointer" 
-          onClick={() => signOut()}>
-          Log out
-        </button>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Temporary location for Request Button */}
+            <RequestMarketButton />
+            <SignOutButton />
+          </div>
+        </header>
+
+        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {markets.map((market) => (
+            <Link
+              key={market.id}
+              href={`/markets/${market.id}`}
+              className="group flex aspect-square flex-col rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            >
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold text-zinc-950 group-hover:text-zinc-700">
+                  {market.title}
+                </h2>
+                <p className="mt-3 line-clamp-5 text-sm leading-6 text-zinc-600">
+                  {market.description}
+                </p>
+              </div>
+            </Link>
+          ))}
+        </section>
       </main>
     </div>
   );
