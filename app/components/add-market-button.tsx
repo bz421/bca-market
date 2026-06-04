@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-export function RequestMarketButton() {
+export default function AddMarketButton() {
     const [open, setOpen] = useState(false);
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
@@ -66,8 +66,8 @@ export function RequestMarketButton() {
                                 <h2 className="text-xl font-semibold text-zinc-950">
                                     Request a market
                                 </h2>
-                                <p className="mt-1 text-sm text-zinc-600">
-                                    Submit the title, description, and close time.
+                                <p className="mt-1 text-sm text-red-600">
+                                    Please fill out every field. 
                                 </p>
                             </div>
 
@@ -103,7 +103,7 @@ export function RequestMarketButton() {
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
                                     className="min-h-28 w-full rounded-lg border border-zinc-300 text-zinc-900 px-3 py-2 outline-none focus:border-zinc-900"
-                                    placeholder="Explain what the market is about."
+                                    placeholder="Explain what the market is about. Include the possible outcomes and resolution criteria. "
                                     required
                                 />
                             </div>
@@ -135,10 +135,9 @@ export function RequestMarketButton() {
                                 </button>
                                 <button
                                     type="submit"
-                                    disabled={isPending}
                                     className="rounded-lg bg-zinc-950 px-4 py-2 text-sm text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
                                 >
-                                    {isPending ? "Submitting..." : "Submit request"}
+                                    Submit request
                                 </button>
                             </div>
                         </form>

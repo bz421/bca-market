@@ -4,7 +4,8 @@ import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import SignOutButton from '@/app/components/sign-out-button';
-import { RequestMarketButton } from './components/add-market-button';
+import AddMarketButton from './components/add-market-button';
+import SettingsButton from './components/settings-button';
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
@@ -35,13 +36,18 @@ export default async function Home() {
 
           <div className="flex items-center gap-3">
             {/* Temporary location for Request Button */}
-            <RequestMarketButton />
+            <SettingsButton />
+            <AddMarketButton />
             <SignOutButton />
           </div>
         </header>
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {markets.map((market) => (
+          {markets.length === 0 ? (
+            <section className='rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-600'>
+              No markets yet.
+            </section>
+          ) : (markets.map((market) => (
             <Link
               key={market.id}
               href={`/markets/${market.id}`}
@@ -56,7 +62,7 @@ export default async function Home() {
                 </p>
               </div>
             </Link>
-          ))}
+          )))}
         </section>
       </main>
     </div>
