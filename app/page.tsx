@@ -9,6 +9,7 @@ import SettingsButton from './components/settings-button';
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
+  const user = session?.user
 
   if (!session) {
     redirect('/auth/signin');
@@ -47,7 +48,7 @@ export default async function Home() {
             <section className='rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-600'>
               No markets yet.
             </section>
-          ) : (markets.map((market) => (
+          ) : (markets.map((market) => (market.status !== 'PENDING' || user?.id === market.creatorId.toString()) ? (
             <Link
               key={market.id}
               href={`/markets/${market.id}`}
@@ -67,7 +68,7 @@ export default async function Home() {
                 )}
               </div>
             </Link>
-          )))}
+          ) : null))}
         </section>
       </main>
     </div>

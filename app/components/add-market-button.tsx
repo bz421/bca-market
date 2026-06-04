@@ -43,6 +43,7 @@ export default function AddMarketButton() {
             setDescription("");
             setCloseTime("");
             router.refresh();
+            router.push("/");
         });
     }
 
@@ -136,8 +137,9 @@ export default function AddMarketButton() {
                                 <button
                                     type="submit"
                                     className="rounded-lg bg-zinc-950 px-4 py-2 text-sm text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60 cursor-pointer"
+                                    disabled={isPending}
                                 >
-                                    Submit request
+                                    {isPending ? "Submitting..." : "Submit request"}
                                 </button>
                             </div>
                         </form>

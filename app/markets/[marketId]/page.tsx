@@ -106,6 +106,9 @@ export default async function MarketPage({
                         {market.status === 'PENDING' && session?.user.admin && (
                             <RejectButton market={market} />
                         )}
+                        {market.status === 'OPEN' && session?.user.admin && (
+                            <RejectButton market={market} />
+                        )}
                     </div>
                 </header>
 

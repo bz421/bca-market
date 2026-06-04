@@ -19,6 +19,7 @@ export default async function SettingsPage() {
     }
 
     const markets = await prisma.market.findMany({
+        include: { creator: true },
         orderBy: [{ closeTime: 'asc' }, { createdAt: 'desc' }]
     });
     return (
@@ -52,7 +53,7 @@ export default async function SettingsPage() {
                     </section>
                 ) : (
                     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        {markets.map((market) => (
+                        {markets.map((market) => market.status === 'PENDING' && (
                             <Link
                                 key={market.id}
                                 href={`/markets/${market.id}`}
@@ -65,6 +66,9 @@ export default async function SettingsPage() {
                                         </h2>
                                         <p className="mt-1 line-clamp-2 text-sm text-zinc-600">
                                             {market.description}
+                                        </p>
+                                        <p className="mt-2 text-xs text-zinc-400">
+                                            Requested by {market.creator.firstName} {market.creator.lastName}
                                         </p>
                                     </div>
                                 </div>
