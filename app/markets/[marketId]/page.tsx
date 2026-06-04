@@ -5,6 +5,9 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SignOutButton from "@/app/components/sign-out-button";
 
+import AcceptButton from "@/app/components/accept-button";
+import RejectButton from "@/app/components/reject-button";
+
 import { Clock } from 'lucide-react';
 
 function formatDate(value: Date) {
@@ -68,7 +71,10 @@ export default async function MarketPage({
     return (
         <div className="min-h-screen bg-zinc-50">
             <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10">
-                <div className="flex items-center justify-end gap-3">
+                <div className="flex items-center justify-between gap-3">
+                    <h1 className="text-3xl font-bold text-zinc-900">
+                        BCA Market
+                    </h1>
                     <SignOutButton />
                 </div>
                 <header className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm md:flex-row md:items-start md:justify-between">
@@ -94,15 +100,11 @@ export default async function MarketPage({
                         >
                             {market.status}
                         </span>
-                        {market.status === 'PENDING' && session?.user.admin &&  (
-                            <button className="rounded-lg bg-green-500 px-4 py-2 text-white hover:bg-green-600 cursor-pointer">
-                                Accept
-                            </button>
+                        {market.status === 'PENDING' && session?.user.admin && (
+                            <AcceptButton />
                         )}
                         {market.status === 'PENDING' && session?.user.admin && (
-                            <button className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600 cursor-pointer">
-                                Reject
-                            </button>
+                            <RejectButton market={market} />
                         )}
                     </div>
                 </header>

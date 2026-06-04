@@ -56,3 +56,40 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ market }, { status: 201 });
 }
+
+export async function DELETE(req: Request) {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.email) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const marketId = typeof body.marketId === "number" ? body.marketId : null;
+
+    if (!marketId) {
+        return NextResponse.json(
+            { error: "Market ID is required." },
+            { status: 400 }
+        );
+    }
+
+    const market = await prisma.market.findUnique({
+        where: { id: marketId },
+        include: { creator: true },
+    });
+
+    if (!market) {
+        return NextResponse.json({ error: "Market not found." }, { status: 404 });
+    }
+
+    if (market.creator.email !== session.user.email && !session.user.admin) {
+        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    await prisma.market.delete({
+        where: { id: marketId },
+    });
+
+    return NextResponse.json({ message: "Market deleted successfully." });
+}

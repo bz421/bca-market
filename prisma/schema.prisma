@@ -56,7 +56,7 @@ model Market {
   id                Int          @id @default(autoincrement())
   title             String       @unique
   description       String
-  liquidity         Decimal      @default(50.0) @db.Decimal(18, 6)
+  liquidity         Int          @default(50)
   creator           User         @relation("CreatedMarkets", fields: [creatorId], references: [id])
   creatorId         Int
   status            MarketStatus @default(OPEN)
@@ -84,7 +84,7 @@ model Outcome {
   market            Market  @relation("MarketOutcomes", fields: [marketId], references: [id], onDelete: Cascade)
   marketId          Int
   name              String
-  sharesOutstanding Decimal @default(0.0) @db.Decimal(18, 6)
+  sharesOutstanding Int     @default(0)
   trades            Trade[]
   resolvedMarket    Market? @relation("ResolvedOutcome")
 
