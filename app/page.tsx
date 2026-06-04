@@ -60,6 +60,11 @@ export default async function Home() {
                 <p className="mt-3 line-clamp-5 text-sm leading-6 text-zinc-600">
                   {market.description}
                 </p>
+                {market.status === "PENDING" && (
+                  <span className="rounded-full px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700">
+                    Pending
+                  </span>
+                )}
               </div>
             </Link>
           )))}
