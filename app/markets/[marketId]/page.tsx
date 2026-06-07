@@ -8,6 +8,9 @@ import SignOutButton from "@/app/components/sign-out-button";
 import AcceptButton from "@/app/components/accept-button";
 import RejectButton from "@/app/components/reject-button";
 
+import OutcomeDetails from "@/app/components/outcome-details";
+import MarketClient from '@/app/components/market-client';
+
 import { Clock } from 'lucide-react';
 
 function formatDate(value: Date) {
@@ -31,6 +34,33 @@ function statusClass(status: string) {
             return "bg-zinc-100 text-zinc-700";
     }
 }
+
+function C(q: number[], b: number): number {
+    const m = Math.max(...q);
+
+    return m + b * Math.log(q.reduce((sum, q_i) => sum + Math.exp((q_i - m) / b), 0));
+}
+
+function p(q: number[], b: number): number[] {
+    const m = Math.max(...q);
+    const denominator = q.reduce((sum, q_i) => sum + Math.exp((q_i - m) / b), 0);
+
+    return q.map(q_i => Math.exp((q_i - m) / b) / denominator);
+}
+
+function getMarketState(
+    outcomes: { sharesOutstanding: number }[],
+    b: number
+) {
+    const q = outcomes.map(outcome => outcome.sharesOutstanding);
+
+    return {
+        q: q,
+        cost: C(q, b),
+        prices: p(q, b)
+    }
+}
+
 
 export default async function MarketPage({
     params,
@@ -68,6 +98,8 @@ export default async function MarketPage({
         notFound();
     }
 
+    const { q, cost, prices } = getMarketState(market.outcomes, market.liquidity);
+
     return (
         <div className="min-h-screen bg-zinc-50">
             <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10">
@@ -77,6 +109,7 @@ export default async function MarketPage({
                     </h1>
                     <SignOutButton />
                 </div>
+                {/* <div> */}
                 <header className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm md:flex-row md:items-start md:justify-between">
                     <div>
                         <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-900">
@@ -112,26 +145,17 @@ export default async function MarketPage({
                     </div>
                 </header>
 
-                <section className="rounded-2xl bg-white p-6 shadow-sm">
-                    <h2 className="text-xl font-semibold text-zinc-950">Outcomes</h2>
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                        {market.outcomes.map((outcome) => (
-                            <div
-                                key={outcome.id}
-                                className="rounded-xl border border-zinc-200 p-4"
-                            >
-                                <p className="font-medium text-zinc-950">{outcome.name}</p>
-                                <p className="mt-1 text-sm text-zinc-600">
-                                    Shares outstanding: {outcome.sharesOutstanding.toString()}
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-
-                    {market.outcomes.length === 0 ? (
-                        <p className="mt-4 text-sm text-zinc-500">No outcomes yet.</p>
-                    ) : null}
-                </section>
+                <MarketClient 
+                    outcomes={market.outcomes.map(o => ({
+                        id: o.id,
+                        marketId: o.marketId,
+                        name: o.name,
+                        sharesOutstanding: o.sharesOutstanding
+                    }))}
+                    liquidity={market.liquidity}
+                    marketStatus={market.status}
+                />
+                {/* </div> */}
             </main>
         </div>
     );

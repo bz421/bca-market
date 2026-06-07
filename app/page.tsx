@@ -7,6 +7,20 @@ import SignOutButton from '@/app/components/sign-out-button';
 import AddMarketButton from './components/add-market-button';
 import SettingsButton from './components/settings-button';
 
+function formatStringToCurrency(value: string): string {
+  const dotIndex = value.indexOf('.');
+  if (dotIndex === -1) {
+    return value + '.00';
+  }
+  return value.substring(0, dotIndex + 3);
+}
+
+function p(q: number[], b: number): number[] {
+  const m = Math.max(...q);
+  const denominator = q.reduce((sum, q_i) => sum + Math.exp((q_i - m) / b), 0);
+  return q.map(q_i => Math.exp((q_i - m) / b) / denominator);
+}
+
 export default async function Home() {
   const session = await getServerSession(authOptions);
   const user = session?.user
@@ -17,7 +31,26 @@ export default async function Home() {
 
   const markets = await prisma.market.findMany({
     orderBy: [{ closeTime: 'asc' }, { createdAt: 'desc' }],
+    include: {
+      outcomes: {
+        orderBy: { name: 'asc' },
+      },
+    },
   });
+
+  for (const market of markets) {
+    const q = market.outcomes.map((o) => o.sharesOutstanding);
+    market.outcomes = market.outcomes.map((outcome, i) => ({
+      ...outcome,
+      price: p(q, market.liquidity)[i],
+    }));
+    console.log(market.outcomes)
+  }
+
+  type OutcomeWithPrice = typeof markets[number]['outcomes'][number] & { price: number };
+
+
+  // console.log(`Money: ${user?.money}, Formatted: ${formatStringToCurrency(user?.money?.toString() || '0.00')}`)
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -35,11 +68,16 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Temporary location for Request Button */}
-            <SettingsButton />
-            <AddMarketButton />
-            <SignOutButton />
+          <div className="flex flex-col items-end gap-3">
+            <div className="flex items-center gap-3">
+              {/* Temporary location for Request Button */}
+              <SettingsButton />
+              <AddMarketButton />
+              <SignOutButton />
+            </div>
+            <p className="mt-2 text-lg text-zinc-600">
+              Your balance: <span className="font-mono font-semibold text-zinc-900">${formatStringToCurrency(user?.money?.toString() || '0.00')}</span>
+            </p>
           </div>
         </header>
 
@@ -48,19 +86,29 @@ export default async function Home() {
             <section className='rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-600'>
               No markets yet.
             </section>
-          ) : (markets.map((market) => (market.status !== 'PENDING' || user?.id === market.creatorId.toString()) ? (
+          ) : (markets.map((market) => (market.status !== 'PENDING' || user?.id === market.creatorId.toString()) || user?.admin ? (
             <Link
               key={market.id}
               href={`/markets/${market.id}`}
-              className="group flex aspect-square flex-col rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+              className="group flex h-min flex-col rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="flex-1">
                 <h2 className="text-xl font-semibold text-zinc-950 group-hover:text-zinc-700">
                   {market.title}
                 </h2>
-                <p className="mt-3 line-clamp-5 text-sm leading-6 text-zinc-600">
-                  {market.description}
-                </p>
+                <div className="mt-3 space-y-1">
+                  {(market.outcomes as OutcomeWithPrice[]).map((outcome, i) => (
+                    <div className="flex items-center justify-between" key={outcome.id}>
+                      <span key={outcome.id} className="mt-1 text-md text-zinc-900 font-medium truncate">
+                        {outcome.name}
+                      </span>
+                      <span className="ml-2 text-sm text-zinc-900 font-semibold">
+                        {`${(outcome.price * 100).toFixed(0)}%`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+
                 {market.status === "PENDING" && (
                   <span className="rounded-full px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700">
                     Pending
