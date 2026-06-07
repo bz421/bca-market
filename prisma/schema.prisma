@@ -39,17 +39,18 @@ model Account {
 }
 
 model User {
-  id              Int       @id @default(autoincrement())
+  id              Int        @id @default(autoincrement())
   firstName       String?
-  lastName        String?   @default("")
-  email           String    @unique
+  lastName        String?    @default("")
+  email           String     @unique
   accounts        Account[]
-  money           Decimal   @default(1000.0) @db.Decimal(18, 4)
-  admin           Boolean   @default(false)
-  createdMarkets  Market[]  @relation("CreatedMarkets")
-  approvedMarkets Market[]  @relation("ApprovedMarkets")
-  resolvedMarkets Market[]  @relation("ResolvedMarkets")
+  money           Decimal    @default(1000.0) @db.Decimal(18, 4)
+  admin           Boolean    @default(false)
+  createdMarkets  Market[]   @relation("CreatedMarkets")
+  approvedMarkets Market[]   @relation("ApprovedMarkets")
+  resolvedMarkets Market[]   @relation("ResolvedMarkets")
   trades          Trade[]
+  positions       Position[]
 }
 
 model Market {
@@ -72,6 +73,7 @@ model Market {
   resolvedBy        User?        @relation("ResolvedMarkets", fields: [resolvedById], references: [id])
   resolvedById      Int?
   outcomes          Outcome[]    @relation("MarketOutcomes")
+  positions         Position[]
 
   @@unique([resolvedOutcomeId])
   @@index([status])
@@ -80,13 +82,14 @@ model Market {
 }
 
 model Outcome {
-  id                Int     @id @default(autoincrement())
-  market            Market  @relation("MarketOutcomes", fields: [marketId], references: [id], onDelete: Cascade)
+  id                Int        @id @default(autoincrement())
+  market            Market     @relation("MarketOutcomes", fields: [marketId], references: [id], onDelete: Cascade)
   marketId          Int
   name              String
-  sharesOutstanding Int     @default(0)
+  sharesOutstanding Int        @default(0)
   trades            Trade[]
-  resolvedMarket    Market? @relation("ResolvedOutcome")
+  resolvedMarket    Market?    @relation("ResolvedOutcome")
+  positions         Position[]
 
   @@unique([marketId, name])
   @@index([marketId])
@@ -107,5 +110,25 @@ model Trade {
 
   @@index([marketId])
   @@index([userId])
+  @@index([outcomeId])
+}
+
+model Position {
+  id          Int      @id @default(autoincrement())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      Int
+  market      Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+  marketId    Int
+  outcome     Outcome  @relation(fields: [outcomeId], references: [id], onDelete: Cascade)
+  outcomeId   Int
+  shares      Decimal  @default(0) @db.Decimal(18, 6)
+  avgCost     Decimal  @default(0) @db.Decimal(18, 6)
+  realizedPnl Decimal  @default(0) @db.Decimal(18, 4)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([userId, outcomeId])
+  @@index([userId])
+  @@index([userId, marketId])
   @@index([outcomeId])
 }
