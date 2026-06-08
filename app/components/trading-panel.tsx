@@ -76,8 +76,8 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
     const currentPrice = selectedIndex !== null ? prices[selectedIndex] : null
 
     return (
-        <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest mb-4">Trade</p>
+        <div className="bg-white p-5 shadow-sm">
+            <p className="text-xs font-semibold text-zinc-400 uppercase mb-2">Trade</p>
 
             <div className="flex rounded-md bg-zinc-100 p-1 mb-5 gap-1">
                 {(['buy', 'sell'] as const).map((s) => (
@@ -97,9 +97,9 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
             </div>
 
             <div className="mb-4">
-                <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Outcome</p>
+                <p className="text-xs font-medium text-zinc-400 uppercase mb-1.5">Outcome</p>
                 {selectedOutcome ? (
-                    <div className="flex items-center justify-between rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2.5">
+                    <div className="flex items-center justify-between border border-zinc-200 bg-zinc-50 px-3 py-2.5">
                         <span className="text-sm font-semibold text-zinc-900 truncate mr-2">
                             {selectedOutcome.name}
                         </span>
@@ -108,14 +108,14 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                         </span>
                     </div>
                 ) : (
-                    <div className="rounded-md border border-dashed border-zinc-200 px-3 py-4 text-center">
+                    <div className="border border-dashed border-zinc-200 px-3 py-4 text-center">
                         <p className="text-sm text-zinc-400">Select an outcome to trade</p>
                     </div>
                 )}
             </div>
 
             <div className="mb-4">
-                <p className="text-xs font-medium text-zinc-400 uppercase tracking-wider mb-1.5">Shares</p>
+                <p className="text-xs font-medium text-zinc-400 uppercase mb-1.5">Shares</p>
                 <input
                     type="number"
                     inputMode="numeric"
@@ -125,12 +125,12 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                     onChange={(e) => { setSharesInput(e.target.value); clearFeedback() }}
                     placeholder="Enter a whole number"
                     disabled={!selectedOutcome || !isOpen}
-                    className="w-full rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition"
+                    className="w-full border border-zinc-200 bg-zinc-50 px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition"
                 />
             </div>
 
             {preview && (
-                <div className="mb-4 rounded-md bg-zinc-50 border border-zinc-100 divide-y divide-zinc-100 text-sm overflow-hidden">
+                <div className="mb-4 bg-zinc-50 border border-zinc-100 divide-y divide-zinc-100 text-sm overflow-hidden">
                     <div className="flex justify-between px-3 py-2 text-zinc-500">
                         <span>Shares</span>
                         <span className="tabular-nums">{shares}</span>
@@ -157,13 +157,13 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
             )}
 
             {error && (
-                <div className="mb-3 flex items-start gap-2 rounded-md bg-rose-50 border border-rose-100 px-3 py-2.5 text-sm text-rose-700">
+                <div className="mb-3 flex items-start gap-2 bg-rose-50 border border-rose-100 px-3 py-2.5 text-sm text-rose-700">
                     <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>{error}</span>
                 </div>
             )}
             {successMsg && (
-                <div className="mb-3 flex items-start gap-2 rounded-md bg-emerald-50 border border-emerald-100 px-3 py-2.5 text-sm text-emerald-700">
+                <div className="mb-3 flex items-start gap-2 bg-emerald-50 border border-emerald-100 px-3 py-2.5 text-sm text-emerald-700">
                     <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" />
                     <span>{successMsg}</span>
                 </div>
@@ -172,7 +172,7 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
             <button
                 onClick={handleTrade}
                 disabled={!selectedOutcome || !validShares || !isOpen || isPending}
-                className={`w-full py-2.5 rounded-md font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
+                className={`w-full py-2.5 font-semibold text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer
                     ${side === 'buy'
                         ? 'bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white'
                         : 'bg-rose-500 hover:bg-rose-600 active:bg-rose-700 text-white'
