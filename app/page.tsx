@@ -8,11 +8,24 @@ import AddMarketButton from './components/add-market-button';
 import SettingsButton from './components/settings-button';
 
 function formatStringToCurrency(value: string): string {
-  const dotIndex = value.indexOf('.');
-  if (dotIndex === -1) {
-    return value + '.00';
+  // console.log(`Input: ${value}`)
+  const [whole, frac] = value.split('.');
+  if (!frac) return `${whole}.00`;
+
+  let cents = frac.slice(0, 2);
+  const roundDigit = frac[2];
+
+  if (roundDigit >= '5') {
+    let value = BigInt(cents) + BigInt(1); // cents shouldn't overflow but just in case
+
+    if (value === BigInt(100)) {
+      return `${(BigInt(whole) + BigInt(1)).toString()}.00`;
+    }
+
+    return `${whole}.${value.toString().padStart(2, '0')}`;
   }
-  return value.substring(0, dotIndex + 3);
+
+  return `${whole}.${cents}`;
 }
 
 function p(q: number[], b: number): number[] {
@@ -44,7 +57,7 @@ export default async function Home() {
       ...outcome,
       price: p(q, market.liquidity)[i],
     }));
-    console.log(market.outcomes)
+    // console.log(market.outcomes)
   }
 
   type OutcomeWithPrice = typeof markets[number]['outcomes'][number] & { price: number };

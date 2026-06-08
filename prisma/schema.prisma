@@ -44,7 +44,7 @@ model User {
   lastName        String?    @default("")
   email           String     @unique
   accounts        Account[]
-  money           Decimal    @default(1000.0) @db.Decimal(18, 4)
+  money           Decimal    @default(1000.0) @db.Decimal(18, 6)
   admin           Boolean    @default(false)
   createdMarkets  Market[]   @relation("CreatedMarkets")
   approvedMarkets Market[]   @relation("ApprovedMarkets")
@@ -103,7 +103,7 @@ model Trade {
   userId    Int
   shares    Decimal  @db.Decimal(18, 6)
   price     Decimal  @db.Decimal(18, 6)
-  cost      Decimal  @db.Decimal(18, 4)
+  cost      Decimal  @db.Decimal(18, 6)
   createdAt DateTime @default(now())
   outcome   Outcome  @relation(fields: [outcomeId], references: [id], onDelete: Cascade)
   outcomeId Int
@@ -123,7 +123,7 @@ model Position {
   outcomeId   Int
   shares      Decimal  @default(0) @db.Decimal(18, 6)
   avgCost     Decimal  @default(0) @db.Decimal(18, 6)
-  realizedPnl Decimal  @default(0) @db.Decimal(18, 4)
+  realizedPnl Decimal  @default(0) @db.Decimal(18, 6)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

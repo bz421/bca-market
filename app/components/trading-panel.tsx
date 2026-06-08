@@ -45,6 +45,7 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
             side === 'buy'
                 ? C(q_new, b) - C(q, b)
                 : C(q, b) - C(q_new, b)
+        console.log(`Paying ${amount}`)
         return { amount, avgPrice: amount / shares }
     }, [selectedIndex, shares, side, q, b, validShares])
 
@@ -84,10 +85,10 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                         key={s}
                         onClick={() => handleSideChange(s)}
                         className={`flex-1 py-2 rounded-md text-sm font-semibold transition-all cursor-pointer ${side === s
-                                ? s === 'buy'
-                                    ? 'bg-white shadow-sm text-emerald-600'
-                                    : 'bg-white shadow-sm text-rose-500'
-                                : 'text-zinc-400 hover:text-zinc-600'
+                            ? s === 'buy'
+                                ? 'bg-white shadow-sm text-emerald-600'
+                                : 'bg-white shadow-sm text-rose-500'
+                            : 'text-zinc-400 hover:text-zinc-600'
                             }`}
                     >
                         {s === 'buy' ? 'Buy' : 'Sell'}
@@ -135,15 +136,21 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                         <span className="tabular-nums">{shares}</span>
                     </div>
                     {side === 'buy' && (
-                        <div className="flex justify-between px-3 py-2 text-zinc-500">
-                            <span>Max payout</span>
-                            <span className="tabular-nums text-emerald-600">${(shares * 100).toFixed(2)}</span>
-                        </div>
+                        <>
+                            <div className="flex justify-between px-3 py-2 text-zinc-500">
+                                <span>Max payout</span>
+                                <span className="tabular-nums text-emerald-600">${(shares * 100).toFixed(2)}</span>
+                            </div>
+                            <div className="flex justify-between px-3 py-2 text-zinc-500">
+                                <span>1% Transaction Fee</span>
+                                <span className="tabular-nums text-emerald-600">${(preview.amount * 100 * 0.01).toFixed(2)}</span>
+                            </div>
+                        </>
                     )}
                     <div className="flex justify-between px-3 py-2.5 font-semibold text-zinc-900 bg-white">
                         <span>{side === 'buy' ? 'Total cost' : 'You receive'}</span>
                         <span className={`tabular-nums ${side === 'sell' ? 'text-emerald-600' : ''}`}>
-                            ${(preview.amount * 100).toFixed(2)}
+                            {side === 'sell' ? (`\$${(preview.amount * 100).toFixed(2)}`) : `\$${(preview.amount * 100 * 1.01).toFixed(2)}`}
                         </span>
                     </div>
                 </div>

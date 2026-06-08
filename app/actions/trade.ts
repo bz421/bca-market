@@ -63,10 +63,12 @@ export async function executeTrade(
             q_new[outcomeIndex] += side === 'buy' ? shares : -shares;
 
             const tradeCost = side === 'buy' ? (C(q_new, b) - C(q, b)) * 100 : (C(q, b) - C(q_new, b)) * 100;
+            const transactionFee = side === 'buy' ? tradeCost * 0.01 : 0
+            const totalCost = tradeCost + transactionFee;
 
             const avgPrice = tradeCost / shares;
             
-            if (side === 'buy' && Number(user.money) < tradeCost) {
+            if (side === 'buy' && Number(user.money) < totalCost) {
                 throw new Error('Insufficient funds to buy shares');
             }
 
@@ -89,7 +91,7 @@ export async function executeTrade(
                 tx.user.update({
                     where: { id: user.id },
                     data: {
-                        money: side === 'buy' ? { decrement: tradeCost } : { increment: tradeCost }
+                        money: side === 'buy' ? { decrement: totalCost } : { increment: totalCost }
                     }
                 }),
 
@@ -97,6 +99,14 @@ export async function executeTrade(
                     where: { id: outcomeId },
                     data: {
                         sharesOutstanding:  side === 'buy' ? { increment: shares } : { decrement: shares }
+                    }
+                }),
+
+                // pay transaction fee to treasury account
+                tx.user.update({
+                    where: { id: Number(process.env.TREASURY_ACCOUNT_ID) },
+                    data: {
+                        money: { increment: transactionFee }
                     }
                 }),
 
