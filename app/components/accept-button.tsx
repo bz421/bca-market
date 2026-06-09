@@ -45,6 +45,7 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
 
         if (!Number.isInteger(parsedLiquidity)) {
             setError("Liquidity must be a whole number.");
+            setIsSubmitting(false);
             return;
         }
 
@@ -83,7 +84,7 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
                 Accept
             </button>
 
-            {open ? (
+            {open && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
                     <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
                         <div className="flex items-start justify-between gap-4">
@@ -196,7 +197,7 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
                         </form>
                     </div>
                 </div>
-            ) : null}
+            )}
         </>
     );
 }

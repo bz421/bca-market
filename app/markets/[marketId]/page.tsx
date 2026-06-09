@@ -7,6 +7,7 @@ import SignOutButton from "@/app/components/sign-out-button";
 
 import AcceptButton from "@/app/components/accept-button";
 import RejectButton from "@/app/components/reject-button";
+import ResolveButton from "@/app/components/resolve-button";
 
 import OutcomeDetails from "@/app/components/outcome-details";
 import MarketClient from '@/app/components/market-client';
@@ -140,7 +141,7 @@ export default async function MarketPage({
                             <RejectButton market={market} />
                         )}
                         {market.status === 'OPEN' && session?.user.admin && (
-                            <RejectButton market={market} />
+                            <ResolveButton market={market} />
                         )}
                     </div>
                 </header>

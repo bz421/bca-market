@@ -127,6 +127,11 @@ export default async function Home() {
                     Pending
                   </span>
                 )}
+                {market.status === "RESOLVED" && (
+                  <span className="rounded-full px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700">
+                    Resolved
+                  </span>
+                )}
               </div>
             </Link>
           ) : null))}

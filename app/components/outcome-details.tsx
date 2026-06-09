@@ -40,9 +40,9 @@ export default function OutcomeDetails({ outcome, prices, index, isSelected, onC
                     style={{ width: `${(price * 100).toFixed(2)}%` }}
                 />
             </div>
-            {/* <p className="mt-2 text-xs text-zinc-400">
+            <p className="mt-2 text-xs text-zinc-400">
                 {outcome.sharesOutstanding.toString()} shares outstanding
-            </p> */}
+            </p>
         </div>
     )
 }

@@ -109,7 +109,7 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                     </div>
                 ) : (
                     <div className="border border-dashed border-zinc-200 px-3 py-4 text-center">
-                        <p className="text-sm text-zinc-400">Select an outcome to trade</p>
+                        <p className="text-sm text-zinc-400">Select an outcome on the left</p>
                     </div>
                 )}
             </div>
