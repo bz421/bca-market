@@ -57,7 +57,7 @@ model Market {
   id                Int          @id @default(autoincrement())
   title             String       @unique
   description       String
-  liquidity         Int          @default(50)
+  liquidity         Int          @default(10)
   creator           User         @relation("CreatedMarkets", fields: [creatorId], references: [id])
   creatorId         Int
   status            MarketStatus @default(OPEN)
