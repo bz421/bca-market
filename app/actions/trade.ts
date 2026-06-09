@@ -102,11 +102,11 @@ export async function executeTrade(
                     }
                 }),
 
-                // pay transaction fee to treasury account
+                // exchange with treasury
                 tx.user.update({
                     where: { id: Number(process.env.TREASURY_ACCOUNT_ID) },
                     data: {
-                        money: { increment: transactionFee }
+                        money: side === 'buy' ? { increment: totalCost } : { decrement: totalCost }
                     }
                 }),
 
