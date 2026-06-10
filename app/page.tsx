@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import SignOutButton from '@/app/components/sign-out-button';
 import AddMarketButton from './components/add-market-button';
 import SettingsButton from './components/settings-button';
+import PortfolioButton from './components/portfolio-button';
 
 function formatStringToCurrency(value: string): string {
   // console.log(`Input: ${value}`)
@@ -86,6 +87,7 @@ export default async function Home() {
               {/* Temporary location for Request Button */}
               <SettingsButton />
               <AddMarketButton />
+              <PortfolioButton />
               <SignOutButton />
             </div>
             <p className="mt-2 text-lg text-zinc-600">
