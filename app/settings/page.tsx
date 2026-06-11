@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SignOutButton from "../components/sign-out-button";
 import TopNav from "@/app/components/top-nav";
+import SideNav from "@/app/components/side-nav"
 
 import MarkNofificationsRead from '@/app/components/mark-notifications-read';
 import { Bell, TrendingUp, TrendingDown, CheckCircle2, AlertCircle, CircleX, ArrowBigUp, ArrowBigDown } from "lucide-react";
@@ -60,8 +61,10 @@ export default async function SettingsPage() {
         <div className="min-h-screen bg-zinc-50">
             <TopNav />
             <MarkNofificationsRead hasUnread={hasUnread} />
-
-            <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
+            
+            <main className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-6 py-8 xl:grid-cols-[260px_minmax(0,1fr)]">
+                <SideNav />
+                <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
                 <header className="flex items-center justify-between gap-6 rounded-2xl bg-white p-6 shadow-sm">
                     <div>
                         <h1 className="mt-1 text-3xl font-semibold text-zinc-950">
@@ -197,6 +200,7 @@ export default async function SettingsPage() {
                     </section>
                 )
                 }
+                </div>
             </main>
         </div>
     )

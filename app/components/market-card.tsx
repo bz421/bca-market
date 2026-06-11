@@ -43,16 +43,13 @@ export default function MarketCard({ market }: MarketCardProps) {
 
   return (
     <article
-      className={`group flex flex-col rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl ${
-        expanded ? "min-h-[420px]" : "h-[420px]"
-        }`}
+      className={`group flex flex-col rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl`}
     >
       <div className="flex items-start justify-between gap-3">
         <Link href={`/markets/${market.id}`} className="min-w-0 flex-1">
           <h2
-            className={`text-xl font-bold text-zinc-950 group-hover:text-sky-700 ${
-              expanded ? "" : "line-clamp-2"
-            }`}
+            className={`text-xl font-bold text-zinc-950 group-hover:text-sky-700 ${expanded ? "" : "line-clamp-2"
+              }`}
           >
             {market.title}
           </h2>
@@ -67,7 +64,7 @@ export default function MarketCard({ market }: MarketCardProps) {
         </span>
       </div>
 
-      <div className="mt-4 flex-1 space-y-3 overflow-hidden">
+      <div className="mt-4 space-y-3">
         {visibleOutcomes.map((outcome) => (
           <div key={outcome.id}>
             <div className="mb-1 flex items-center justify-between gap-3 text-sm">
@@ -116,9 +113,8 @@ export default function MarketCard({ market }: MarketCardProps) {
               aria-label={expanded ? "Collapse card" : "Expand card"}
             >
               <ChevronDown
-                className={`h-4 w-4 transition-transform ${
-                  expanded ? "rotate-180" : ""
-                }`}
+                className={`h-4 w-4 transition-transform ${expanded ? "rotate-180" : ""
+                  }`}
               />
             </button>
           )}
