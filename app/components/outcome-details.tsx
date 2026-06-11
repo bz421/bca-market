@@ -9,6 +9,8 @@ interface OutcomeDetailsProps {
     sharesOutstanding: number
 }
 
+const COLORS = ['#38bdf8', '#6366f1', '#eab308', '#f97316', '#a855f7', '#22c55e'];
+
 export default function OutcomeDetails({ outcome, prices, index, isSelected, onClick }: {
     outcome: OutcomeDetailsProps,
     prices: number[],
@@ -34,10 +36,10 @@ export default function OutcomeDetails({ outcome, prices, index, isSelected, onC
                     {(price * 100).toFixed(0)}%
                 </span>
             </div>
-            <div className="mt-2.5 h-1.5 rounded-full bg-zinc-100 overflow-hidden">
+            <div className="mt-2.5 h-1.5 rounded-full bg-zinc-200 overflow-hidden">
                 <div
-                    className="h-full rounded-full bg-zinc-700 transition-all duration-500"
-                    style={{ width: `${(price * 100).toFixed(2)}%` }}
+                    className="h-full rounded-full transition-all duration-500"
+                    style={{ width: `${(price * 100).toFixed(2)}%`, backgroundColor: COLORS[index % COLORS.length], }}
                 />
             </div>
             <p className="mt-2 text-xs text-zinc-400">

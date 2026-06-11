@@ -1,6 +1,6 @@
 'use client'
 
-import { CartesianGrid, Legend, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
+import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 
 
 const COLORS = ['#38bdf8', '#6366f1', '#eab308', '#f97316', '#a855f7', '#22c55e'];
