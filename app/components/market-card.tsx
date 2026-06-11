@@ -105,7 +105,7 @@ export default function MarketCard({ market }: MarketCardProps) {
             href={`/markets/${market.id}`}
             className="text-sm font-semibold text-sky-600 group-hover:text-sky-700"
           >
-            View →
+            View
           </Link>
 
           {hasMore && (

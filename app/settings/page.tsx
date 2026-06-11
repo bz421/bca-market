@@ -71,10 +71,6 @@ export default async function SettingsPage() {
                             Logged in as {session.user?.email}
                         </p>
                     </div>
-
-                    <div className="flex items-center gap-3 items-center">
-                        <SignOutButton />
-                    </div>
                 </header>
 
                 <section>
