@@ -249,14 +249,16 @@ const creatorName =
                     </div>
 
                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                        <div className="rounded-2xl border border-zinc-100 bg-zinc-50/70 p-4">
-                            <p className="text-[11px] font-bold uppercase tracking-wide text-zinc-400">
-                                Created by
-                            </p>
-                            <p className="mt-1 whitespace-normal break-words text-sm font-semibold leading-snug text-zinc-950">
-                                {creatorName}
-                            </p>
-                        </div>
+                        {session?.user.admin && (
+                            <div className="rounded-2xl border border-zinc-100 bg-zinc-50/70 p-4">
+                                <p className="text-[11px] font-bold uppercase tracking-wide text-zinc-400">
+                                    Created by
+                                </p>
+                                <p className="mt-1 whitespace-normal break-words text-sm font-semibold leading-snug text-zinc-950">
+                                    {creatorName}
+                                </p>
+                            </div>
+                        )}
 
                         <div className="rounded-2xl border border-zinc-100 bg-zinc-50/70 p-4">
                             <p className="text-[11px] font-bold uppercase tracking-wide text-zinc-400">
