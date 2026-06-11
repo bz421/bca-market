@@ -10,6 +10,7 @@ import MarketCard from "./components/market-card";
 import TopNav from './components/top-nav';
 import SideNav from './components/side-nav';
 
+
 function formatStringToCurrency(value: string): string {
   // console.log(`Input: ${value}`)
   const [whole, frac] = value.split('.');
@@ -119,6 +120,8 @@ export default async function Home() {
                   </p>
                 </div>
 
+                <PortfolioButton />
+                <SettingsButton />
                 <AddMarketButton />
               </div>
             </div>
