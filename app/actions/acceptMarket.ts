@@ -35,16 +35,17 @@ export async function acceptMarket(input: AcceptMarketInput) {
         throw new Error("Invalid approval request");
     }
 
-    const users = await prisma.user.findMany({
-        where: {
-            OR: [
-                { id: input.creatorId },
-                { admin: true }
-            ]
-        }
-    })
 
     const notifContext = await prisma.$transaction(async (tx) => {
+        const admins = await tx.user.findMany({
+            where: {
+                OR: [
+                    { id: input.creatorId },
+                    { admin: true }
+                ]
+            }
+        })
+
         const updatedMarket = await tx.market.update({
             where: { id: input.marketId },
             data: {
@@ -72,7 +73,7 @@ export async function acceptMarket(input: AcceptMarketInput) {
         }),
 
         await tx.notification.createMany({
-            data: users.map(user => ({
+            data: admins.map(user => ({
                 userId: user.id,
                 type: NotificationType.MARKET_APPROVED,
                 title: 'Market Approved',

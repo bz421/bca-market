@@ -4,23 +4,24 @@ import { prisma } from "@/lib/prisma";
 import { Market, NotificationType } from '../generated/prisma/client';
 
 export async function deleteMarket(market: Market) {
-    const users = await prisma.user.findMany({
-        where: {
-            OR: [
-                { id: market.creatorId },
-                { admin: true }
-            ]
-        }
-    })
 
     await prisma.$transaction(async (tx) => {
+        const admins = await tx.user.findMany({
+            where: {
+                OR: [
+                    { id: market.creatorId },
+                    { admin: true }
+                ]
+            }
+        })
+
         await prisma.market.delete({
             where: { id: market.id }
         });
 
         await tx.notification.createMany({
             data:
-                users.map(user => ({
+                admins.map(user => ({
                     userId: user.id,
                     type: NotificationType.MARKET_REJECTED,
                     title: 'Market Rejected',
