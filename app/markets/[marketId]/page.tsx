@@ -15,6 +15,7 @@ import { Clock } from 'lucide-react';
 
 import { buildPriceHistory } from "@/lib/market-history";
 import MarketChart from "@/app/components/market-chart";
+import RefundButton from "@/app/components/refund-button";
 
 
 function formatDate(value: Date) {
@@ -162,12 +163,15 @@ export default async function MarketPage({
                             <RejectButton market={market} />
                         )}
                         {market.status === 'OPEN' && session?.user.admin && (
-                            <ResolveButton market={market} />
+                            <>
+                                <ResolveButton market={market} />
+                                <RefundButton market={market} />
+                            </>
                         )}
                     </div>
                 </header>
                 <MarketChart data={chartData} outcomeNames={market.outcomes.map(o => o.name)} />
-                <MarketClient 
+                <MarketClient
                     outcomes={market.outcomes.map(o => ({
                         id: o.id,
                         marketId: o.marketId,

@@ -17,8 +17,9 @@ export async function closeMarket(input: { marketId: number, winningOutcomeId: n
     const admins = await prisma.user.findMany({
         where: { admin: true }
     });
-
+    
     const resolveContext = await prisma.$transaction(async (tx) => {
+
         const market = await tx.market.findUnique({
             where: { id: input.marketId },
             include: { outcomes: true }
