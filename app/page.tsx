@@ -7,6 +7,7 @@ import SignOutButton from '@/app/components/sign-out-button';
 import AddMarketButton from './components/add-market-button';
 import SettingsButton from './components/settings-button';
 import PortfolioButton from './components/portfolio-button';
+import MarketCard from "./components/market-card";
 
 function formatStringToCurrency(value: string): string {
   // console.log(`Input: ${value}`)
@@ -76,11 +77,11 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-50">
-      <main className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-6 py-10">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-8 py-10">
         <header className="flex items-start justify-between gap-6 rounded-2xl bg-white p-6 shadow-sm">
           <div>
             <p className="text-sm text-zinc-500">
-              Hello, {session.user?.firstName}!
+              Hello, {session.user?.firstName || session.user?.email?.split("@")[0]}!
             </p>
             <h1 className="mt-2 text-3xl font-semibold text-zinc-950">
               Welcome to BCA Market!
@@ -104,51 +105,26 @@ export default async function Home() {
           </div>
         </header>
 
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <section className="grid auto-rows-fr justify-start gap-6 [grid-template-columns:repeat(auto-fill,360px)]">
           {markets.length === 0 ? (
             <section className='rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-600'>
               No markets yet.
             </section>
           ) : (markets.map((market) => (market.status !== 'PENDING' || user?.id === market.creatorId.toString()) || user?.admin ? (
-            <Link
+            <MarketCard
               key={market.id}
-              href={`/markets/${market.id}`}
-              className="group flex h-min flex-col rounded-2xl bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold text-zinc-950 group-hover:text-zinc-700">
-                  {market.title}
-                </h2>
-                <div className="mt-3 space-y-1">
-                  {(market.outcomes as OutcomeWithPrice[]).map((outcome, i) => (
-                    <div className="flex items-center justify-between" key={outcome.id}>
-                      <span key={outcome.id} className="mt-1 text-md text-zinc-900 font-medium truncate">
-                        {outcome.name}
-                      </span>
-                      <span className="ml-2 text-sm text-zinc-900 font-semibold">
-                        {`${(outcome.price * 100).toFixed(0)}%`}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-
-                {market.status === "PENDING" && (
-                  <span className="rounded-full px-2.5 py-1 text-xs font-medium bg-amber-100 text-amber-700">
-                    Pending
-                  </span>
-                )}
-                {market.status === "RESOLVED" && (
-                  <span className="rounded-full px-2.5 py-1 text-xs font-medium bg-blue-100 text-blue-700">
-                    Resolved
-                  </span>
-                )}
-                {market.status === "OPEN" && session.user?.admin && market.closeTime < new Date() && (
-                  <span className="rounded-full px-2.5 py-1 text-xs font-medium bg-red-100 text-red-700">
-                    Close?
-                  </span>
-                )}
-              </div>
-            </Link>
+              market={{
+                id: market.id,
+                title: market.title,
+                status: market.status,
+                closeTime: market.closeTime.toISOString(),
+                outcomes: (market.outcomes as OutcomeWithPrice[]).map((outcome) => ({
+                  id: outcome.id,
+                  name: outcome.name,
+                  price: outcome.price,
+                })),
+              }}
+            />
           ) : null))}
         </section>
       </main>

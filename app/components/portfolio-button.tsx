@@ -4,7 +4,7 @@ import { ChartLine } from 'lucide-react'
 
 export default function PortfolioButton() {
     return (
-        <Link href='/portfolio' className='text-sm text-zinc-500 hover:text-zinc-900 flex items-center gap-1'>
+        <Link href='/portfolio' className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-white text-zinc-600 shadow-sm transition hover:scale-105 hover:bg-zinc-100">
             <ChartLine className='h-5 w-5 text-zinc-500' />
         </Link>
     )

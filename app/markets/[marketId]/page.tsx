@@ -16,7 +16,8 @@ import { Clock } from 'lucide-react';
 import { buildPriceHistory } from "@/lib/market-history";
 import MarketChart from "@/app/components/market-chart";
 import RefundButton from "@/app/components/refund-button";
-
+import SideNav from "@/app/components/side-nav"
+import TopNav from "@/app/components/top-nav";
 
 function formatDate(value: Date) {
     return new Intl.DateTimeFormat("en-US", {
@@ -120,70 +121,84 @@ export default async function MarketPage({
     );
 
     return (
-        <div className="min-h-screen bg-zinc-50">
-            <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10">
-                <div className="flex items-center justify-between gap-3">
-                    <h1 className="text-3xl font-bold text-zinc-900">
-                        BCA Market
-                    </h1>
-                    <SignOutButton />
-                </div>
-                <header className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm md:flex-row md:items-start md:justify-between">
-                    <div>
-                        <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-900">
-                            ← Back to markets
-                        </Link>
-                        <h1 className="mt-3 text-3xl font-semibold text-zinc-950">
-                            {market.title}
-                        </h1>
-                        <p className="mt-2 max-w-3xl text-zinc-600">
-                            {market.description}
-                        </p>
-                        <p className="mt-2 text-sm text-zinc-400 flex items-center">
-                            <Clock className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
-                            {formatDate(market.closeTime)}
-                        </p>
-                    </div>
+    <div className="min-h-screen bg-zinc-50">
+        <TopNav />
+        <main className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-6 py-8 xl:grid-cols-[260px_minmax(0,1fr)]">
+            <SideNav currentMarketId={market.id} />
 
-                    <div className="flex flex-col items-start gap-3 md:items-end">
-                        <span
-                            className={`rounded-full px-3 py-1 text-sm font-medium ${statusClass(market.status)}`}
-                        >
-                            {market.status}
-                        </span>
-                        {market.status === 'PENDING' && session?.user.admin && (
-                            <AcceptButton
+            <section className="flex min-w-0 flex-col gap-6">
+                
+
+                <header className="rounded-3xl bg-white p-6 shadow-sm">
+                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <div className="min-w-0">
+
+                            <h1 className="mt-3 text-3xl font-bold leading-tight text-zinc-950">
+                                {market.title}
+                            </h1>
+
+                            <p className="mt-2 max-w-3xl text-zinc-600">
+                                {market.description}
+                            </p>
+
+                            <p className="mt-3 flex items-center text-sm text-zinc-400">
+                                <Clock className="mr-1.5 h-3.5 w-3.5 shrink-0" />
+                                {formatDate(market.closeTime)}
+                            </p>
+                        </div>
+
+                        <div className="flex shrink-0 flex-col items-start gap-3 md:items-end">
+                            <span
+                                className={`rounded-full px-3 py-1 text-sm font-semibold ${statusClass(
+                                market.status
+                                )}`}
+                            >
+                                {market.status}
+                            </span>
+
+                            {market.status === "PENDING" && session?.user.admin && (
+                                <AcceptButton
                                 market={{
                                     ...market,
                                     marketCreatorId: market.creator.id,
                                 }}
-                            />
-                        )}
-                        {market.status === 'PENDING' && session?.user.admin && (
-                            <RejectButton market={market} />
-                        )}
-                        {market.status === 'OPEN' && session?.user.admin && (
-                            <>
+                                />
+                            )}
+
+                            {market.status === "PENDING" && session?.user.admin && (
+                                <RejectButton market={market} />
+                            )}
+
+                            {market.status === "OPEN" && session?.user.admin && (
+                                <>
                                 <ResolveButton market={market} />
                                 <RefundButton market={market} />
-                            </>
-                        )}
+                                </>
+                            )}
+                        </div>
                     </div>
                 </header>
-                <MarketChart data={chartData} outcomeNames={market.outcomes.map(o => o.name)} />
+
+                <section className="rounded-3xl bg-white p-6 shadow-sm">
+                    <MarketChart
+                        data={chartData}
+                        outcomeNames={market.outcomes.map((o) => o.name)}
+                    />
+                </section>
+
                 <MarketClient
-                    outcomes={market.outcomes.map(o => ({
+                    outcomes={market.outcomes.map((o) => ({
                         id: o.id,
                         marketId: o.marketId,
                         name: o.name,
-                        sharesOutstanding: o.sharesOutstanding
+                        sharesOutstanding: o.sharesOutstanding,
                     }))}
                     liquidity={market.liquidity}
                     marketStatus={market.status}
                     balance={Number(session?.user.money)}
                 />
-                {/* </div> */}
-            </main>
-        </div>
+            </section>
+        </main>
+    </div>
     );
 }

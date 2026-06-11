@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SignOutButton from "../components/sign-out-button";
+import TopNav from "@/app/components/top-nav";
 
 import MarkNofificationsRead from '@/app/components/mark-notifications-read';
 import { Bell, TrendingUp, TrendingDown, CheckCircle2, AlertCircle, CircleX, ArrowBigUp, ArrowBigDown } from "lucide-react";
@@ -57,12 +58,10 @@ export default async function SettingsPage() {
 
     return (
         <div className="min-h-screen bg-zinc-50">
+            <TopNav />
             <MarkNofificationsRead hasUnread={hasUnread} />
 
             <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
-                <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-900">
-                    ← Back to Home
-                </Link>
                 <header className="flex items-center justify-between gap-6 rounded-2xl bg-white p-6 shadow-sm">
                     <div>
                         <h1 className="mt-1 text-3xl font-semibold text-zinc-950">
