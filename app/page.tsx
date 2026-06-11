@@ -142,6 +142,11 @@ export default async function Home() {
                     Resolved
                   </span>
                 )}
+                {market.status === "OPEN" && session.user?.admin && market.closeTime < new Date() && (
+                  <span className="rounded-full px-2.5 py-1 text-xs font-medium bg-red-100 text-red-700">
+                    Close?
+                  </span>
+                )}
               </div>
             </Link>
           ) : null))}
