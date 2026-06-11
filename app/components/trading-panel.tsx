@@ -150,7 +150,7 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                     )}
                     <div className="flex justify-between px-3 py-2.5 font-semibold text-zinc-900 bg-white">
                         <span>{side === 'buy' ? 'Total cost' : 'You receive'}</span>
-                        <span className={`tabular-nums ${side === 'sell' ? 'text-emerald-600' : ''}`}>
+                        <span className={`tabular-nums ${side === 'sell' ? 'text-emerald-600' : 'text-rose-600'}`}>
                             {side === 'sell' ? (`\$${(preview.amount * 100).toFixed(2)}`) : `\$${(preview.amount * 100 * 1.01).toFixed(2)}`}
                         </span>
                     </div>
