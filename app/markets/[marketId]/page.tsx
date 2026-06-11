@@ -160,6 +160,7 @@ export default async function MarketPage({
                     }))}
                     liquidity={market.liquidity}
                     marketStatus={market.status}
+                    balance={Number(session?.user.money)}
                 />
                 {/* </div> */}
             </main>

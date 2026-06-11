@@ -22,9 +22,10 @@ interface Props {
     outcomes: SerializedOutcome[]
     liquidity: number
     marketStatus: string
+    balance: number
 }
 
-export default function MarketClient({ outcomes, liquidity, marketStatus }: Props) {
+export default function MarketClient({ outcomes, liquidity, marketStatus, balance }: Props) {
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
     const q = outcomes.map((o) => o.sharesOutstanding)
@@ -59,6 +60,7 @@ export default function MarketClient({ outcomes, liquidity, marketStatus }: Prop
                     b={liquidity}
                     prices={prices}
                     marketStatus={marketStatus}
+                    balance={balance}
                 />
             </div>
         </div>

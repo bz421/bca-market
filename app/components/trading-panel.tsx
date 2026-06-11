@@ -18,6 +18,7 @@ interface Props {
     b: number
     prices: number[]
     marketStatus: string
+    balance: number
 }
 
 function C(q: number[], b: number): number {
@@ -26,7 +27,7 @@ function C(q: number[], b: number): number {
     return m + b * Math.log(q.reduce((sum, q_i) => sum + Math.exp((q_i - m) / b), 0));
 }
 
-export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, prices, marketStatus }: Props) {
+export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, prices, marketStatus, balance }: Props) {
     const [side, setSide] = useState<'buy' | 'sell'>('buy')
     const [sharesInput, setSharesInput] = useState('')
     const [error, setError] = useState<string | null>(null)
@@ -151,6 +152,12 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                         <span>{side === 'buy' ? 'Total cost' : 'You receive'}</span>
                         <span className={`tabular-nums ${side === 'sell' ? 'text-emerald-600' : ''}`}>
                             {side === 'sell' ? (`\$${(preview.amount * 100).toFixed(2)}`) : `\$${(preview.amount * 100 * 1.01).toFixed(2)}`}
+                        </span>
+                    </div>
+                    <div className="flex justify-between px-3 py-2.5 font-semibold text-zinc-900 bg-white">
+                        <span>New Balance</span>
+                        <span className={`tabular-nums ${side === 'sell' ? 'text-emerald-600' : ''}`}>
+                            {side === 'sell' ? `\$${(balance + preview.amount * 100).toFixed(2)}` : `\$${(balance - preview.amount * 100 * 1.01).toFixed(2)}`}
                         </span>
                     </div>
                 </div>
