@@ -93,7 +93,7 @@ export default async function SettingsPage() {
                             No notifications in the last 5 days.
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
                             {notifications.map(n => (
                                 <div
                                     key={n.id}
