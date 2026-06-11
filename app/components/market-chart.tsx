@@ -49,7 +49,10 @@ export default function MarketChart({ data, outcomeNames }: Props) {
                 month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
               })
             }
-            formatter={(value: number, name: string) => [`${value.toFixed(1)}%`, name]}
+            formatter={(value, name) => {
+              const num = typeof value === 'number' ? value : Number(value);
+              return [`${Number.isFinite(num) ? num.toFixed(1) : '0.0'}%`, String(name)];
+            }}
           />
           {outcomeNames.map((name, i) => (
             <Line
