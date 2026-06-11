@@ -14,6 +14,10 @@ import MarketClient from '@/app/components/market-client';
 
 import { Clock } from 'lucide-react';
 
+import { buildPriceHistory } from "@/lib/market-history";
+import MarketChart from "@/app/components/market-chart";
+
+
 function formatDate(value: Date) {
     return new Intl.DateTimeFormat("en-US", {
         dateStyle: "medium",
@@ -101,6 +105,19 @@ export default async function MarketPage({
 
     const { q, cost, prices } = getMarketState(market.outcomes, market.liquidity);
 
+    const trades = await prisma.trade.findMany({
+        where: { marketId },
+        orderBy: { createdAt: "asc" },
+        select: { outcomeId: true, shares: true, createdAt: true },
+    });
+
+    const chartData = buildPriceHistory(
+        market.outcomes,
+        market.liquidity,
+        trades,
+        market.approvedAt ?? market.createdAt,
+    );
+
     return (
         <div className="min-h-screen bg-zinc-50">
             <main className="mx-auto flex w-full max-w-5xl flex-col gap-8 px-6 py-10">
@@ -110,7 +127,6 @@ export default async function MarketPage({
                     </h1>
                     <SignOutButton />
                 </div>
-                {/* <div> */}
                 <header className="flex flex-col gap-4 rounded-2xl bg-white p-6 shadow-sm md:flex-row md:items-start md:justify-between">
                     <div>
                         <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-900">
@@ -145,7 +161,7 @@ export default async function MarketPage({
                         )}
                     </div>
                 </header>
-
+                <MarketChart data={chartData} outcomeNames={market.outcomes.map(o => o.name)} />
                 <MarketClient 
                     outcomes={market.outcomes.map(o => ({
                         id: o.id,
