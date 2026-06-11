@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
@@ -8,6 +7,8 @@ import AddMarketButton from './components/add-market-button';
 import SettingsButton from './components/settings-button';
 import PortfolioButton from './components/portfolio-button';
 import MarketCard from "./components/market-card";
+import TopNav from './components/top-nav';
+import SideNav from './components/side-nav';
 
 function formatStringToCurrency(value: string): string {
   // console.log(`Input: ${value}`)
@@ -72,62 +73,133 @@ export default async function Home() {
 
   type OutcomeWithPrice = typeof markets[number]['outcomes'][number] & { price: number };
 
+    const visibleMarkets = markets.filter((market) => {
+  if (market.status !== 'PENDING') return true;
+  if (user?.admin) return true;
+  return user?.id === market.creatorId.toString();
+});
+
+const openMarkets = visibleMarkets.filter((market) => market.status === 'OPEN');
+const pendingMarkets = visibleMarkets.filter((market) => market.status === 'PENDING');
+const resolvedMarkets = visibleMarkets.filter((market) => market.status === 'RESOLVED');
 
   // console.log(`Money: ${user?.money}, Formatted: ${formatStringToCurrency(user?.money?.toString() || '0.00')}`)
 
   return (
-    <div className="min-h-screen bg-zinc-50">
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-8 py-10">
-        <header className="flex items-start justify-between gap-6 rounded-2xl bg-white p-6 shadow-sm">
-          <div>
-            <p className="text-sm text-zinc-500">
-              Hello, {session.user?.firstName || session.user?.email?.split("@")[0]}!
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold text-zinc-950">
-              Welcome to BCA Market!
-            </h1>
-            <p className="mt-2 text-zinc-600">
-              You are logged in as {session.user?.email}
-            </p>
-          </div>
+  <div className="min-h-screen bg-zinc-50">
+    <TopNav />
 
-          <div className="flex flex-col items-end gap-3">
-            <div className="flex items-center gap-3">
-              {/* Temporary location for Request Button */}
-              <SettingsButton />
-              <PortfolioButton />
-              <AddMarketButton />
-              <SignOutButton />
+    <main className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-8 pt-4 pb-8 xl:grid-cols-[260px_minmax(0,1fr)]">      <SideNav />
+
+      <section className="flex min-w-0 flex-col gap-6">
+        <header className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm text-zinc-500">
+                Hello, {session.user?.firstName || session.user?.email?.split("@")[0]}!
+              </p>
+
+              <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-950">
+                Welcome back.
+              </h1>
+
+              <p className="mt-2 max-w-2xl text-zinc-600">
+                Browse active BCA prediction markets, track outcomes, and request new markets.
+              </p>
             </div>
-            <p className="mt-2 text-lg text-zinc-600">
-              Your balance: <span className="font-mono font-semibold text-zinc-900">${formatStringToCurrency(user?.money?.toString() || '0.00')}</span>
-            </p>
+
+            <div className="flex flex-col items-start gap-3 md:items-end">
+              <div className="rounded-2xl bg-zinc-50 px-5 py-4">
+                <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+                  Balance
+                </p>
+                <p className="mt-1 font-mono text-2xl font-bold text-zinc-950">
+                  ${formatStringToCurrency(user?.money?.toString() || '0.00')}
+                </p>
+              </div>
+
+              <AddMarketButton />
+            </div>
           </div>
         </header>
 
-        <section className="grid auto-rows-fr justify-start gap-6 [grid-template-columns:repeat(auto-fill,360px)]">
-          {markets.length === 0 ? (
-            <section className='rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-600'>
+        <section className="grid gap-4 md:grid-cols-4">
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+              Open markets
+            </p>
+            <p className="mt-2 text-2xl font-bold text-zinc-950">
+              {openMarkets.length}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+              Pending
+            </p>
+            <p className="mt-2 text-2xl font-bold text-zinc-950">
+              {pendingMarkets.length}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+              Recently resolved
+            </p>
+            <p className="mt-2 text-2xl font-bold text-zinc-950">
+              {resolvedMarkets.length}
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+            <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+              Total visible
+            </p>
+            <p className="mt-2 text-2xl font-bold text-zinc-950">
+              {visibleMarkets.length}
+            </p>
+          </div>
+        </section>
+
+        <section>
+          <div className="mb-4 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-bold text-zinc-950">
+                Active Markets
+              </h2>
+              <p className="mt-1 text-sm text-zinc-500">
+                Click a market to view the chart, trade, and see details.
+              </p>
+            </div>
+          </div>
+
+          {visibleMarkets.length === 0 ? (
+            <section className="rounded-3xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-600">
               No markets yet.
             </section>
-          ) : (markets.map((market) => (market.status !== 'PENDING' || user?.id === market.creatorId.toString()) || user?.admin ? (
-            <MarketCard
-              key={market.id}
-              market={{
-                id: market.id,
-                title: market.title,
-                status: market.status,
-                closeTime: market.closeTime.toISOString(),
-                outcomes: (market.outcomes as OutcomeWithPrice[]).map((outcome) => ({
-                  id: outcome.id,
-                  name: outcome.name,
-                  price: outcome.price,
-                })),
-              }}
-            />
-          ) : null))}
+          ) : (
+            <div className="grid auto-rows-fr justify-start gap-6 [grid-template-columns:repeat(auto-fill,360px)]">
+              {visibleMarkets.map((market) => (
+                <MarketCard
+                  key={market.id}
+                  market={{
+                    id: market.id,
+                    title: market.title,
+                    status: market.status,
+                    closeTime: market.closeTime.toISOString(),
+                    outcomes: (market.outcomes as OutcomeWithPrice[]).map((outcome) => ({
+                      id: outcome.id,
+                      name: outcome.name,
+                      price: outcome.price,
+                    })),
+                  }}
+                />
+              ))}
+            </div>
+          )}
         </section>
-      </main>
-    </div>
-  );
+      </section>
+    </main>
+  </div>
+);
 }
