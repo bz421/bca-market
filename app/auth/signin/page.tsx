@@ -17,6 +17,19 @@ const preview = [
   { title: "Dr. Abramson out tomorrow?", yes: 34 },
 ];
 
+function getStyle(i: number) : String {
+  switch (i) {
+    case 0:
+      return 'bg-green-50 text-green-700';
+    case 1:
+      return 'bg-blue-50 text-blue-700';
+    case 2:
+      return 'bg-orange-50 text-orange-700';
+    default:
+      return '';
+  }
+}
+
 export default function SignIn() {
   const { data: session } = useSession();
   const router = useRouter();
@@ -28,8 +41,8 @@ export default function SignIn() {
   return (
     <div className="relative min-h-screen overflow-hidden bg-zinc-50">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-32 right-0 h-[28rem] w-[28rem] rounded-full bg-sky-100/70 blur-3xl" />
-        <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-emerald-100/50 blur-3xl" />
+        {/* <div className="absolute -top-32 right-0 h-[28rem] w-[28rem] rounded-full bg-sky-100/70 blur-3xl" /> */}
+        {/* <div className="absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-emerald-100/50 blur-3xl" /> */}
       </div>
 
       <div className="relative mx-auto flex min-h-screen max-w-6xl flex-col items-center justify-center gap-16 px-6 py-16 lg:flex-row lg:gap-20">
@@ -55,21 +68,21 @@ export default function SignIn() {
             Continue with Google
           </button>
 
-          <div className="mt-14 grid gap-4 sm:grid-cols-3">
-            {features.map(({ icon: Icon, title, desc }) => (
+          {/* <div className="mt-14 grid gap-4 sm:grid-cols-3">
+            {features.map(({ icon: Icon, title, desc }, index) => (
               <div key={title} className="rounded-2xl bg-white p-4 shadow-sm ring-1 ring-zinc-200/80">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-sky-50 text-sky-600">
+                <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${getStyle(index)}`}>
                   <Icon className="h-4 w-4" />
                 </div>
                 <p className="mt-3 text-sm font-semibold text-zinc-900">{title}</p>
                 <p className="mt-1 text-xs leading-relaxed text-zinc-500">{desc}</p>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
 
         <div className="relative w-full max-w-sm flex-1 lg:max-w-md">
-          <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-sky-100/80 to-emerald-50/80 blur-sm" />
+          {/* <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-sky-100/80 to-emerald-50/80 blur-sm" /> */}
           <div className="relative space-y-4">
             {preview.map((m, i) => (
               <article

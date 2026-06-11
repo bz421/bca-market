@@ -38,7 +38,7 @@ export default function MarketCard({ market }: MarketCardProps) {
   const [expanded, setExpanded] = useState(false);
 
   const sortedOutcomes = [...market.outcomes].sort((a, b) => b.price - a.price);
-  const visibleOutcomes = expanded ? sortedOutcomes : sortedOutcomes.slice(0, 4);
+  const visibleOutcomes = expanded ? sortedOutcomes : sortedOutcomes.slice(0, 3);
   const hasMore = sortedOutcomes.length > 4 || market.title.length > 60;
 
   return (
@@ -48,7 +48,7 @@ export default function MarketCard({ market }: MarketCardProps) {
       <div className="flex items-start justify-between gap-3">
         <Link href={`/markets/${market.id}`} className="min-w-0 flex-1">
           <h2
-            className={`text-xl font-bold text-zinc-950 group-hover:text-sky-700 ${expanded ? "" : "line-clamp-2"
+            className={`text-xl font-bold text-zinc-950 group-hover:text-sky-700 ${expanded ? "" : "line-clamp-3"
               }`}
           >
             {market.title}
@@ -85,9 +85,9 @@ export default function MarketCard({ market }: MarketCardProps) {
           </div>
         ))}
 
-        {!expanded && sortedOutcomes.length > 4 && (
+        {!expanded && sortedOutcomes.length > 3 && (
           <p className="text-xs font-medium text-zinc-400">
-            +{sortedOutcomes.length - 4} more outcomes
+            +{sortedOutcomes.length - 3} more outcomes
           </p>
         )}
       </div>
