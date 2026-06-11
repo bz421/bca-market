@@ -14,10 +14,12 @@ type PendingMarket = {
     outcomes?: Array<{ name: string }>;
 };
 
-function toLocalDateTimeValue(value: string | Date) {
+function toDateTimeValue(value: string | Date) {
     const date = value instanceof Date ? value : new Date(value);
-    const offset = date.getTimezoneOffset() * 60000;
-    return new Date(date.getTime() - offset).toISOString().slice(0, 16);
+    const offset = date.getTimezoneOffset();
+
+    // console.log(`Converting date: ${date.getTime()}`);
+    return new Date(date.getTime() - offset * 60 * 1000).toISOString().slice(0, 16);
 }
 
 export default function AcceptButton({ market }: { market: PendingMarket }) {
@@ -26,7 +28,7 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
     const [title, setTitle] = useState(market.title);
     const [description, setDescription] = useState(market.description);
     const [liquidity, setLiquidity] = useState(String(market.liquidity));
-    const [closeTime, setCloseTime] = useState(toLocalDateTimeValue(market.closeTime));
+    const [closeTime, setCloseTime] = useState(toDateTimeValue(market.closeTime));
     const [outcomesText, setOutcomesText] = useState(
         market.outcomes?.map((outcome) => outcome.name).join("\n") ?? "",
     );
@@ -151,7 +153,7 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
 
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-zinc-700">
-                                        Close Time
+                                        Close Time (Local)
                                     </label>
                                     <input
                                         type="datetime-local"

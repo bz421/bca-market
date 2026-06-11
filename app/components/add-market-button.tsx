@@ -30,7 +30,7 @@ export default function AddMarketButton({
             body: JSON.stringify({
                 title,
                 description,
-                closeTime,
+                closeTime: new Date(closeTime).toISOString(),
             }),
         });
 
@@ -133,7 +133,7 @@ export default function AddMarketButton({
 
                                 <div>
                                     <label className="mb-1 block text-sm font-medium text-zinc-700">
-                                        Close time
+                                        Close time (Local)
                                     </label>
                                     <input
                                         type="datetime-local"

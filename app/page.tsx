@@ -174,22 +174,24 @@ export default async function Home() {
                 No markets yet.
               </section>
             ) : (
-              <div className="grid items-start justify-start gap-6 [grid-template-columns:repeat(auto-fill,360px)]">
+                <div className="columns-1 md:columns-2 xl:columns-3 2xl:columns-4 gap-6">
                 {visibleMarkets.map((market) => (
-                  <MarketCard
-                    key={market.id}
-                    market={{
-                      id: market.id,
-                      title: market.title,
-                      status: market.status,
-                      closeTime: market.closeTime.toISOString(),
-                      outcomes: (market.outcomes as OutcomeWithPrice[]).map((outcome) => ({
-                        id: outcome.id,
-                        name: outcome.name,
-                        price: outcome.price,
-                      })),
-                    }}
-                  />
+                  <div key={market.id} className="break-inside-avoid mb-6">
+                    <MarketCard
+                      key={market.id}
+                      market={{
+                        id: market.id,
+                        title: market.title,
+                        status: market.status,
+                        closeTime: market.closeTime.toISOString(),
+                        outcomes: (market.outcomes as OutcomeWithPrice[]).map((outcome) => ({
+                          id: outcome.id,
+                          name: outcome.name,
+                          price: outcome.price,
+                        })),
+                      }}
+                    />
+                  </div>
                 ))}
               </div>
             )}
