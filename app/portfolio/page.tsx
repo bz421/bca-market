@@ -76,9 +76,9 @@ export default async function PortfolioPage() {
         return { ...pos, shares, avgCost, realizedPnl, currentPrice, currentValue, unrealizedPnl, totalPnl: realizedPnl + unrealizedPnl };
     });
 
-    const open = enriched.filter((p) => p.shares > 0);
+    const open = enriched.filter((p) => p.market.status === "OPEN");
     const tradedOutcomes = new Set(trades.map((t) => t.outcomeId));
-    const closed = enriched.filter((p) => p.shares === 0 && tradedOutcomes.has(p.outcomeId));
+    const closed = enriched.filter((p) => tradedOutcomes.has(p.outcomeId));
     const positionsValue = open.reduce((s, p) => s + p.currentValue, 0);
     const totalPnl = enriched.reduce((s, p) => s + p.totalPnl, 0);
     const hasClosed = trades.some((t) => Number(t.shares) < 0) || closed.some((p) => p.realizedPnl !== 0);
