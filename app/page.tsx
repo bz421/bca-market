@@ -44,13 +44,13 @@ export default async function Home() {
   if (!session) {
     redirect('/auth/signin');
   }
-  
+
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   const markets = await prisma.market.findMany({
     where: {
       OR: [
-        { status: {not: 'RESOLVED'} },
+        { status: { not: 'RESOLVED' } },
         { resolvedAt: { gte: sevenDaysAgo } }
       ]
     },
@@ -73,133 +73,124 @@ export default async function Home() {
 
   type OutcomeWithPrice = typeof markets[number]['outcomes'][number] & { price: number };
 
-    const visibleMarkets = markets.filter((market) => {
-  if (market.status !== 'PENDING') return true;
-  if (user?.admin) return true;
-  return user?.id === market.creatorId.toString();
-});
+  const visibleMarkets = markets.filter((market) => {
+    if (market.status !== 'PENDING') return true;
+    if (user?.admin) return true;
+    return user?.id === market.creatorId.toString();
+  });
 
-const openMarkets = visibleMarkets.filter((market) => market.status === 'OPEN');
-const pendingMarkets = visibleMarkets.filter((market) => market.status === 'PENDING');
-const resolvedMarkets = visibleMarkets.filter((market) => market.status === 'RESOLVED');
+  const openMarkets = visibleMarkets.filter((market) => market.status === 'OPEN');
+  const pendingMarkets = visibleMarkets.filter((market) => market.status === 'PENDING');
+  const resolvedMarkets = visibleMarkets.filter((market) => market.status === 'RESOLVED');
 
   // console.log(`Money: ${user?.money}, Formatted: ${formatStringToCurrency(user?.money?.toString() || '0.00')}`)
 
   return (
-  <div className="min-h-screen bg-zinc-50">
-    <TopNav />
+    <div className="min-h-screen bg-zinc-50">
+      <TopNav />
 
-    <main className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-8 pt-4 pb-8 xl:grid-cols-[260px_minmax(0,1fr)]">      <SideNav />
+      <main className="mx-auto grid w-full w-full grid-cols-1 gap-6 px-8 pt-4 pb-8 xl:grid-cols-[260px_minmax(0,1fr)]">
+        <SideNav />
 
-      <section className="flex min-w-0 flex-col gap-6">
-        <header className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
-          <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
-            <div>
-              <p className="text-sm text-zinc-500">
-                Hello, {session.user?.firstName || session.user?.email?.split("@")[0]}!
-              </p>
-
-              <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-950">
-                Welcome back.
-              </h1>
-
-              <p className="mt-2 max-w-2xl text-zinc-600">
-                Browse active BCA prediction markets, track outcomes, and request new markets.
-              </p>
-            </div>
-
-            <div className="flex flex-col items-start gap-3 md:items-end">
-              <div className="rounded-2xl bg-zinc-50 px-5 py-4">
-                <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
-                  Balance
+        <section className="flex min-w-0 flex-col gap-6">
+          <header className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
+            <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              <div>
+                <p className="text-sm text-zinc-500">
+                  Hello, {session.user?.firstName || session.user?.email?.split("@")[0]}!
                 </p>
-                <p className="mt-1 font-mono text-2xl font-bold text-zinc-950">
-                  ${formatStringToCurrency(user?.money?.toString() || '0.00')}
+
+                <h1 className="mt-2 text-3xl font-bold tracking-tight text-zinc-950">
+                  Welcome back.
+                </h1>
+
+                <p className="mt-2 max-w-2xl text-zinc-600">
+                  Browse active BCA prediction markets, track outcomes, and request new markets.
                 </p>
               </div>
 
-              <AddMarketButton />
+              <div className="flex flex-col items-start gap-3 md:items-end">
+                <div className="rounded-2xl bg-zinc-50 px-5 py-4">
+                  <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+                    Balance
+                  </p>
+                  <p className="mt-1 font-mono text-2xl font-bold text-zinc-950">
+                    ${formatStringToCurrency(user?.money?.toString() || '0.00')}
+                  </p>
+                </div>
+
+                <AddMarketButton />
+              </div>
             </div>
-          </div>
-        </header>
+          </header>
 
-        <section className="grid gap-4 md:grid-cols-4">
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
-              Open markets
-            </p>
-            <p className="mt-2 text-2xl font-bold text-zinc-950">
-              {openMarkets.length}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
-              Pending
-            </p>
-            <p className="mt-2 text-2xl font-bold text-zinc-950">
-              {pendingMarkets.length}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
-              Recently resolved
-            </p>
-            <p className="mt-2 text-2xl font-bold text-zinc-950">
-              {resolvedMarkets.length}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-            <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
-              Total visible
-            </p>
-            <p className="mt-2 text-2xl font-bold text-zinc-950">
-              {visibleMarkets.length}
-            </p>
-          </div>
-        </section>
-
-        <section>
-          <div className="mb-4 flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-zinc-950">
-                Active Markets
-              </h2>
-              <p className="mt-1 text-sm text-zinc-500">
-                Click a market to view the chart, trade, and see details.
+          {/* <section className="grid gap-4 md:grid-cols-4">
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+                Open markets
+              </p>
+              <p className="mt-2 text-2xl font-bold text-zinc-950">
+                {openMarkets.length}
               </p>
             </div>
-          </div>
 
-          {visibleMarkets.length === 0 ? (
-            <section className="rounded-3xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-600">
-              No markets yet.
-            </section>
-          ) : (
-            <div className="grid auto-rows-fr justify-start gap-6 [grid-template-columns:repeat(auto-fill,360px)]">
-              {visibleMarkets.map((market) => (
-                <MarketCard
-                  key={market.id}
-                  market={{
-                    id: market.id,
-                    title: market.title,
-                    status: market.status,
-                    closeTime: market.closeTime.toISOString(),
-                    outcomes: (market.outcomes as OutcomeWithPrice[]).map((outcome) => ({
-                      id: outcome.id,
-                      name: outcome.name,
-                      price: outcome.price,
-                    })),
-                  }}
-                />
-              ))}
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+                Pending
+              </p>
+              <p className="mt-2 text-2xl font-bold text-zinc-950">
+                {pendingMarkets.length}
+              </p>
             </div>
-          )}
+
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+                Recently resolved
+              </p>
+              <p className="mt-2 text-2xl font-bold text-zinc-950">
+                {resolvedMarkets.length}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
+              <p className="text-xs font-bold uppercase tracking-wide text-zinc-400">
+                Total visible
+              </p>
+              <p className="mt-2 text-2xl font-bold text-zinc-950">
+                {visibleMarkets.length}
+              </p>
+            </div>
+          </section> */}
+
+          <section>
+
+            {visibleMarkets.length === 0 ? (
+              <section className="rounded-3xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-600">
+                No markets yet.
+              </section>
+            ) : (
+              <div className="grid items-start justify-start gap-6 [grid-template-columns:repeat(auto-fill,360px)]">
+                {visibleMarkets.map((market) => (
+                  <MarketCard
+                    key={market.id}
+                    market={{
+                      id: market.id,
+                      title: market.title,
+                      status: market.status,
+                      closeTime: market.closeTime.toISOString(),
+                      outcomes: (market.outcomes as OutcomeWithPrice[]).map((outcome) => ({
+                        id: outcome.id,
+                        name: outcome.name,
+                        price: outcome.price,
+                      })),
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
         </section>
-      </section>
-    </main>
-  </div>
-);
+      </main>
+    </div>
+  );
 }

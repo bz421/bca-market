@@ -48,12 +48,12 @@ export default async function SideNav({ currentMarketId }: SideNavProps) {
 
   return (
     <aside className="sticky top-6 hidden h-[calc(100vh-3rem)] w-64 shrink-0 flex-col rounded-3xl xl:flex">
-      <div className="px-2 pb-4">
+      <div className="px-2 pb-0">
         <Link href="/" className="block">
         </Link>
       </div>
 
-      <nav className="space-y-1 border-y border-zinc-100 py-4">
+      <nav className="space-y-1 border-y border-zinc-100 py-0">
         <Link
           href="/"
           className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950"
