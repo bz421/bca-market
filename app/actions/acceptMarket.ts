@@ -5,10 +5,13 @@ import { revalidatePath } from "next/cache";
 import { authOptions } from "@/lib/auth";
 import { prisma } from '@/lib/prisma';
 
+import { NotificationType } from '../generated/prisma/client';
+
 export type AcceptMarketInput = {
     marketId: number;
     title: string;
     description: string;
+    creatorId: number;
     liquidity: number;
     outcomes: string[];
     closeTime: string;
@@ -32,8 +35,17 @@ export async function acceptMarket(input: AcceptMarketInput) {
         throw new Error("Invalid approval request");
     }
 
-    await prisma.$transaction([
-        prisma.market.update({
+    const users = await prisma.user.findMany({
+        where: {
+            OR: [
+                { id: input.creatorId },
+                { admin: true }
+            ]
+        }
+    })
+
+    const notifContext = await prisma.$transaction(async (tx) => {
+        const updatedMarket = await tx.market.update({
             where: { id: input.marketId },
             data: {
                 title,
@@ -44,18 +56,32 @@ export async function acceptMarket(input: AcceptMarketInput) {
                 approvedById: Number(session.user.id),
                 approvedAt: new Date(),
             },
-        }),
-        prisma.outcome.deleteMany({
+            include: { creator: true }
+        });
+
+        await tx.outcome.deleteMany({
             where: { marketId: input.marketId },
-        }),
-        prisma.outcome.createMany({
+        });
+
+        await tx.outcome.createMany({
             data: outcomes.map((name) => ({
                 marketId: input.marketId,
                 name,
                 sharesOutstanding: 0,
             })),
         }),
-    ]);
+
+        await tx.notification.createMany({
+            data: users.map(user => ({
+                userId: user.id,
+                type: NotificationType.MARKET_APPROVED,
+                title: 'Market Approved',
+                body: `${user.admin ? 'The' : 'Your'} market "${title}" has been approved and is now open for trading.`
+            }))
+        });
+
+        return updatedMarket;
+    });
 
     revalidatePath(`/markets/${input.marketId}`);
     revalidatePath("/");

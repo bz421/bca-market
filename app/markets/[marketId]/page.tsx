@@ -9,7 +9,6 @@ import AcceptButton from "@/app/components/accept-button";
 import RejectButton from "@/app/components/reject-button";
 import ResolveButton from "@/app/components/resolve-button";
 
-import OutcomeDetails from "@/app/components/outcome-details";
 import MarketClient from '@/app/components/market-client';
 
 import { Clock } from 'lucide-react';
@@ -87,6 +86,7 @@ export default async function MarketPage({
             },
             creator: {
                 select: {
+                    id: true,
                     firstName: true,
                     lastName: true,
                     email: true,
@@ -135,7 +135,12 @@ export default async function MarketPage({
                             {market.status}
                         </span>
                         {market.status === 'PENDING' && session?.user.admin && (
-                            <AcceptButton market={market} />
+                            <AcceptButton
+                                market={{
+                                    ...market,
+                                    marketCreatorId: market.creator.id,
+                                }}
+                            />
                         )}
                         {market.status === 'PENDING' && session?.user.admin && (
                             <RejectButton market={market} />

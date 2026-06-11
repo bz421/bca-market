@@ -42,8 +42,16 @@ export default async function Home() {
   if (!session) {
     redirect('/auth/signin');
   }
+  
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   const markets = await prisma.market.findMany({
+    where: {
+      OR: [
+        { status: {not: 'RESOLVED'} },
+        { resolvedAt: { gte: sevenDaysAgo } }
+      ]
+    },
     orderBy: [{ closeTime: 'asc' }, { createdAt: 'desc' }],
     include: {
       outcomes: {
@@ -86,8 +94,8 @@ export default async function Home() {
             <div className="flex items-center gap-3">
               {/* Temporary location for Request Button */}
               <SettingsButton />
-              <AddMarketButton />
               <PortfolioButton />
+              <AddMarketButton />
               <SignOutButton />
             </div>
             <p className="mt-2 text-lg text-zinc-600">

@@ -5,14 +5,20 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
-export async function closeMarket(input: { marketId: number, winningOutcomeId: number }) : Promise<void> {
+import { NotificationType, ResolutionType } from '../generated/prisma/client';
+
+export async function closeMarket(input: { marketId: number, winningOutcomeId: number }): Promise<void> {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.admin || !session.user.id)  throw new Error("Unauthorized");
+    if (!session?.user?.admin || !session.user.id) throw new Error("Unauthorized");
 
     const treasuryId = Number(process.env.TREASURY_ACCOUNT_ID);
     if (!treasuryId) throw new Error("Treasury user ID not configured");
 
-    await prisma.$transaction(async (tx) => {
+    const admins = await prisma.user.findMany({
+        where: { admin: true }
+    });
+
+    const resolveContext = await prisma.$transaction(async (tx) => {
         const market = await tx.market.findUnique({
             where: { id: input.marketId },
             include: { outcomes: true }
@@ -66,7 +72,7 @@ export async function closeMarket(input: { marketId: number, winningOutcomeId: n
                     resolvedAt: new Date(),
                 }
             }),
-            
+
             tx.user.update({
                 where: { id: treasuryId },
                 data: { money: { decrement: totalPayout } }
@@ -75,7 +81,42 @@ export async function closeMarket(input: { marketId: number, winningOutcomeId: n
             ...winnerUpdates,
             ...loserUpdates
         ])
+
+        return {
+            marketTitle: market.title,
+            winningOutcomeName: winningOutcome.name,
+            positions: allPositions.map(p => ({
+                userId: p.userId,
+                shares: Number(p.shares),
+                outcomeName: market.outcomes.find(o => o.id === p.outcomeId)?.name ?? "Unknown",
+                isWinner: p.outcomeId === input.winningOutcomeId,
+                payout: p.outcomeId === input.winningOutcomeId ? Number(p.shares) * 100 : 0,
+            }))
+        }
     })
+
+    await prisma.notification.createMany({
+        data: 
+            admins.map(admin => ({
+                userId: admin.id,
+                type: NotificationType.RESOLUTION,
+                title: `Market Resolved: ${resolveContext.marketTitle}`,
+                body: `The market "${resolveContext.marketTitle}" has been resolved to: "${resolveContext.winningOutcomeName}".`
+            }))
+    })
+
+    if (resolveContext.positions.length > 0) {
+        await prisma.notification.createMany({
+            data: resolveContext.positions.map(p => ({
+                userId: p.userId,
+                type: NotificationType.RESOLUTION,
+                resolutionType: p.isWinner ? ResolutionType.WIN : ResolutionType.LOSS,
+                title: `Market Resolved: ${resolveContext.marketTitle}`,
+                body: p.isWinner ? `Congratulations! Your outcome "${p.outcomeName}" won. You received $${p.payout.toFixed(2)}.`
+                    : `Unfortunately, your outcome "${p.outcomeName}" lost. Better luck next time!`
+            }))
+        })
+    }
 
     revalidatePath(`/markets/${input.marketId}`);
     revalidatePath("/");

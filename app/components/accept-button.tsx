@@ -8,6 +8,7 @@ type PendingMarket = {
     id: number;
     title: string;
     description: string;
+    marketCreatorId: number;
     liquidity: number;
     closeTime: string | Date;
     outcomes?: Array<{ name: string }>;
@@ -58,6 +59,7 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
         try {
             await acceptMarket({
                 marketId: market.id,
+                creatorId: market.marketCreatorId,
                 title,
                 description,
                 liquidity: parsedLiquidity,

@@ -5,11 +5,26 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SignOutButton from "../components/sign-out-button";
 
+import MarkNofificationsRead from '@/app/components/mark-notifications-read';
+import { Bell, TrendingUp, TrendingDown, CheckCircle2, AlertCircle, CircleX, ArrowBigUp, ArrowBigDown } from "lucide-react";
+
 function formatDate(value: Date) {
     return new Intl.DateTimeFormat("en-US", {
         dateStyle: "medium",
         timeStyle: "short",
     }).format(value);
+}
+
+function formatRelativeTime(value: Date): string {
+    const diff = Date.now() - value.getTime();
+    const diffMins = Math.floor(diff / (1000 * 60));
+    const diffHours = Math.floor(diff / (1000 * 60 * 60));
+    const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    if (diffMins < 1) return "just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    return `${diffDays}d ago`;
 }
 
 export default async function SettingsPage() {
@@ -18,12 +33,32 @@ export default async function SettingsPage() {
         redirect("/auth/signin");
     }
 
-    const markets = await prisma.market.findMany({
-        include: { creator: true },
-        orderBy: [{ closeTime: 'asc' }, { createdAt: 'desc' }]
-    });
+    const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000);
+
+
+    const [notifications, pendingMarkets] = await Promise.all([
+        prisma.notification.findMany({
+            where: {
+                user: { email: session.user.email! },
+                createdAt: { gte: fiveDaysAgo }
+            },
+            orderBy: { createdAt: 'desc' },
+        }),
+        session.user.admin ? prisma.market.findMany({
+            where: { status: 'PENDING' },
+            include: { creator: true },
+            orderBy: [{ closeTime: 'asc' }, { createdAt: 'desc' }]
+        })
+            : Promise.resolve([])
+    ])
+
+    const hasUnread = notifications.some(n => !n.read);
+    const unreadCount = notifications.filter(n => !n.read).length;
+
     return (
         <div className="min-h-screen bg-zinc-50">
+            <MarkNofificationsRead hasUnread={hasUnread} />
+
             <main className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
                 <Link href="/" className="text-sm text-zinc-500 hover:text-zinc-900">
                     ← Back to Home
@@ -42,18 +77,93 @@ export default async function SettingsPage() {
                         <SignOutButton />
                     </div>
                 </header>
+
+                <section>
+                    <div>
+                        <h1 className="text-3xl font-semibold text-zinc-950 mb-2">
+                            Notifications
+                        </h1>
+                        {hasUnread && (
+                            <span className="rounded-full bg-rose-100 px-2 py-0.5 text-xs font-semibold text-rose-600">{unreadCount} new</span>
+                        )}
+                    </div>
+
+                    {notifications.length === 0 ? (
+                        <div className="rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-500">
+                            No notifications in the last 5 days.
+                        </div>
+                    ) : (
+                        <div className="flex flex-col gap-2">
+                            {notifications.map(n => (
+                                <div
+                                    key={n.id}
+                                    className={`flex items-start gap-3.5 rounded-2xl bg-white p-4 shadow-sm transition
+                                        ${!n.read ? 'ring-1 ring-zinc-200' : ''}`}
+                                >
+                                    <div className={`mt-0.5 shrink-0 rounded-lg p-1.5
+                                        ${n.type === 'TRADE_BUY'
+                                            ? 'bg-emerald-100 text-emerald-600'
+                                            : n.type === 'TRADE_SELL'
+                                                ? 'bg-yellow-100 text-yellow-600'
+                                                : n.type === 'MARKET_APPROVED'
+                                                    ? 'bg-blue-100 text-blue-600'
+                                                    : n.type === 'MARKET_REJECTED'
+                                                        ? 'bg-red-100 text-red-600'
+                                                        : n.type === 'RESOLUTION'
+                                                            ? n.resolutionType === 'WIN'
+                                                                ? 'bg-emerald-100 text-emerald-600'
+                                                                : n.resolutionType === 'LOSS'
+                                                                    ? 'bg-red-100 text-red-600'
+                                                                    : 'bg-gray-100 text-gray-600'
+                                                            : 'bg-gray-100 text-gray-600'
+                                        }`}
+
+                                    >
+                                        {n.type === 'TRADE_BUY'
+                                            ? <ArrowBigUp className="h-3.5 w-3.5" />
+                                            : n.type === 'TRADE_SELL'
+                                                ? <ArrowBigDown className="h-3.5 w-3.5" />
+                                                : n.type === 'MARKET_APPROVED'
+                                                    ? <CheckCircle2 className="h-3.5 w-3.5" />
+                                                    : n.type === 'MARKET_REJECTED'
+                                                        ? <CircleX className="h-3.5 w-3.5" />
+                                                        : n.type === 'RESOLUTION'
+                                                            ? n.resolutionType === 'WIN'
+                                                                ? <TrendingUp className="h-3.5 w-3.5" />
+                                                                : n.resolutionType === 'LOSS'
+                                                                    ? <TrendingDown className="h-3.5 w-3.5" />
+                                                                    : <AlertCircle className="h-3.5 w-3.5" />
+                                                            : <AlertCircle className="h-3.5 w-3.5" />
+                                        }
+                                    </div>
+
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-start justify-between gap-2">
+                                            <p className="text-sm font-semibold text-zinc-900">{n.title}</p>
+                                            <span className="shrink-0 text-xs text-zinc-400">
+                                                {formatRelativeTime(n.createdAt)}
+                                            </span>
+                                        </div>
+                                        <p className="mt-0.5 text-sm text-zinc-600">{n.body}</p>
+                                    </div>
+
+                                    {!n.read && (
+                                        <div className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-rose-500" />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+
                 {session?.user.admin && (<div className="mt-6">
                     <h1 className="text-3xl font-semibold text-zinc-950">
                         Pending Markets
                     </h1>
                 </div>)}
-                {session?.user.admin && (markets.length === 0 ? (
-                    <section className="rounded-2xl border border-dashed border-zinc-300 bg-white p-10 text-center text-zinc-600">
-                        No markets yet.
-                    </section>
-                ) : (
+                {session?.user.admin && (
                     <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        {markets.map((market) => market.status === 'PENDING' && (
+                        {pendingMarkets.map((market) => (
                             <Link
                                 key={market.id}
                                 href={`/markets/${market.id}`}
@@ -91,7 +201,7 @@ export default async function SettingsPage() {
                         ))}
                     </section>
                 )
-                )}
+                }
             </main>
         </div>
     )

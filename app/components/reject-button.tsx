@@ -11,7 +11,7 @@ export default function RejectButton({ market }: { market: Market }) {
         <button
             className="rounded-lg bg-red-500 px-4 py-2 text-white hover:bg-red-600 cursor-pointer"
             onClick={async () => {
-                await deleteMarket(market.id)
+                await deleteMarket(market)
 
                 router.refresh()
                 router.push("/")

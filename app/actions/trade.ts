@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
+import { NotificationType } from '../generated/prisma/client';
+
 
 function C(q: number[], b: number): number {
     const m = Math.max(...q);
@@ -25,7 +27,7 @@ export async function executeTrade(
         }
 
         // transaction to ensure trade atomicity (cannot be partially executed)
-        await prisma.$transaction(async (tx) => {
+        const notifContext = await prisma.$transaction(async (tx) => {
             const [user, market, position] = await Promise.all([
                 tx.user.findUnique({ where: { email: session.user.email! } }),
                 tx.market.findUnique({
@@ -137,7 +139,41 @@ export async function executeTrade(
                         cost: side === 'buy' ? tradeCost : -tradeCost
                     }
                 })
-            ])
+            ]);
+
+            return {
+                userId: user.id,
+                firstName: user.firstName ?? 'User',
+                marketTitle: market.title,
+                outcomeName: market.outcomes[outcomeIndex].name,
+                totalCost,
+                shares,
+                side
+            }
+        })
+
+        const admins = await prisma.user.findMany({ 
+            where: { admin: true },
+            select: { id: true } 
+        });
+
+        await prisma.notification.createMany({
+            data: [
+                {
+                    userId: notifContext.userId,
+                    type: notifContext.side === 'buy' ? NotificationType.TRADE_BUY : NotificationType.TRADE_SELL,
+                    title: notifContext.side === 'buy' ? 'Shares Purchased' : 'Shares Sold',
+                    body: `You ${notifContext.side === 'buy' ? 'bought' : 'sold'} ${notifContext.shares} shares of "${notifContext.outcomeName}" in market "${notifContext.marketTitle}" for a total of $${notifContext.totalCost.toFixed(2)}.`
+                },
+                ...admins
+                    .filter(admin => admin.id !== notifContext.userId)
+                    .map(admin => ({
+                        userId: admin.id,
+                        type: notifContext.side === 'buy' ? NotificationType.TRADE_BUY : NotificationType.TRADE_SELL,
+                        title: notifContext.side === 'buy' ? 'New buy' : 'New sell', 
+                        body: `${notifContext.firstName} ${notifContext.side === 'buy' ? 'purchased' : 'sold'} ${notifContext.shares} shares of "${notifContext.outcomeName}" in market "${notifContext.marketTitle}".`
+                    }))
+            ]
         })
 
         revalidatePath(`/markets/${marketId}`);

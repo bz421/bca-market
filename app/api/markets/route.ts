@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
+import { NotificationType } from "@/app/generated/prisma/browser";
+
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
 
@@ -53,6 +55,19 @@ export async function POST(req: Request) {
             status: "PENDING",
         },
     });
+
+    const admins = await prisma.user.findMany({
+        where: { admin: true },
+    })
+
+    await prisma.notification.createMany({
+        data: admins.map(admin => ({
+            userId: admin.id,
+            type: NotificationType.MARKET_REQUEST,
+            title: `New Market Request: ${market.title}`,
+            body: `A new market is awaiting review.`
+        }))
+    })
 
     return NextResponse.json({ market }, { status: 201 });
 }
