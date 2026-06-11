@@ -120,9 +120,11 @@ export default async function Home() {
                   </p>
                 </div>
 
-                <PortfolioButton />
-                <SettingsButton />
-                <AddMarketButton />
+                <div className="flex flex-row items-center gap-2">
+                  <PortfolioButton />
+                  <SettingsButton />
+                  <AddMarketButton />
+                </div>
               </div>
             </div>
           </header>
