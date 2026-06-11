@@ -155,7 +155,7 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                         </span>
                     </div>
                     <div className="flex justify-between px-3 py-2.5 font-semibold text-zinc-900 bg-white">
-                        <span>New Balance</span>
+                        <span>New balance</span>
                         <span className={`tabular-nums ${side === 'sell' ? 'text-emerald-600' : ''}`}>
                             {side === 'sell' ? `\$${(balance + preview.amount * 100).toFixed(2)}` : `\$${(balance - preview.amount * 100 * 1.01).toFixed(2)}`}
                         </span>
