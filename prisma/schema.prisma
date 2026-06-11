@@ -28,7 +28,7 @@ model Account {
 model User {
   firstName       String?
   lastName        String?        @default("")
-  money           Decimal        @default(1000.0) @db.Decimal(18, 6)
+  money           Decimal        @default(10000.0) @db.Decimal(18, 6)
   admin           Boolean        @default(false)
   email           String         @unique
   id              Int            @id @default(autoincrement())
