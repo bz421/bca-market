@@ -29,9 +29,10 @@ interface Props {
     marketStatus: string
     balance: number
     userPositions: UserPosition[]
+    resolvedOutcomeId: number | null
 }
 
-export default function MarketClient({ outcomes, liquidity, marketStatus, balance, userPositions }: Props) {
+export default function MarketClient({ outcomes, liquidity, marketStatus, balance, userPositions, resolvedOutcomeId }: Props) {
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
     const q = outcomes.map((o) => o.sharesOutstanding)
@@ -49,6 +50,8 @@ export default function MarketClient({ outcomes, liquidity, marketStatus, balanc
                             prices={prices}
                             index={i}
                             isSelected={selectedIndex === i}
+                            isResolved={marketStatus === 'RESOLVED'}
+                            isWinner={marketStatus === 'RESOLVED' && outcome.id === resolvedOutcomeId}
                             onClick={() => setSelectedIndex((prev) => (prev === i ? null : i))}
                         />
                     ))}

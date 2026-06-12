@@ -96,7 +96,7 @@ export default async function Home() {
     <div className="min-h-screen bg-zinc-50">
       <TopNav />
 
-      <main className="mx-auto grid w-full w-full grid-cols-1 gap-6 px-8 pt-4 pb-8 xl:grid-cols-[260px_minmax(0,1fr)]">
+      <main className="mx-auto grid w-full grid-cols-1 gap-6 px-8 pt-4 pb-8 xl:grid-cols-[260px_minmax(0,1fr)]">
         <SideNav />
 
         <section className="flex min-w-0 flex-col gap-6">
@@ -190,6 +190,7 @@ export default async function Home() {
                         title: market.title,
                         status: market.status,
                         closeTime: market.closeTime.toISOString(),
+                        resolvedOutcomeId: market.resolvedOutcomeId,
                         outcomes: (market.outcomes as OutcomeWithPrice[]).map((outcome) => ({
                           id: outcome.id,
                           name: outcome.name,

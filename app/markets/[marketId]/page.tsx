@@ -242,6 +242,7 @@ const creatorName =
                     marketStatus={market.status}
                     balance={Number(session?.user.money)}
                     userPositions={serializedPositions}
+                    resolvedOutcomeId={market.resolvedOutcomeId}
                 />
 
                 <section className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm">
