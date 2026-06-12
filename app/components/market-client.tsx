@@ -18,14 +18,20 @@ function p(q: number[], b: number): number[] {
     return q.map(q_i => Math.exp((q_i - m) / b) / denominator);
 }
 
+interface UserPosition {
+    outcomeId: number
+    shares: number
+}
+
 interface Props {
     outcomes: SerializedOutcome[]
     liquidity: number
     marketStatus: string
     balance: number
+    userPositions: UserPosition[]
 }
 
-export default function MarketClient({ outcomes, liquidity, marketStatus, balance }: Props) {
+export default function MarketClient({ outcomes, liquidity, marketStatus, balance, userPositions }: Props) {
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
 
     const q = outcomes.map((o) => o.sharesOutstanding)
@@ -61,6 +67,7 @@ export default function MarketClient({ outcomes, liquidity, marketStatus, balanc
                     prices={prices}
                     marketStatus={marketStatus}
                     balance={balance}
+                    userPositions={userPositions}
                 />
             </div>
         </div>

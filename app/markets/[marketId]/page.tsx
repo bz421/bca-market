@@ -109,6 +109,24 @@ export default async function MarketPage({
 
     const { q, cost, prices } = getMarketState(market.outcomes, market.liquidity);
 
+    const userPositions = session?.user?.id
+        ? await prisma.position.findMany({
+              where: {
+                  userId: Number(session.user.id),
+                  marketId,
+              },
+              select: {
+                  outcomeId: true,
+                  shares: true,
+              },
+          })
+        : [];
+
+    const serializedPositions = userPositions.map((pos) => ({
+        outcomeId: pos.outcomeId,
+        shares: Number(pos.shares),
+    }));
+
     const trades = await prisma.trade.findMany({
         where: { marketId },
         orderBy: { createdAt: "asc" },
@@ -220,6 +238,7 @@ const creatorName =
                     liquidity={market.liquidity}
                     marketStatus={market.status}
                     balance={Number(session?.user.money)}
+                    userPositions={serializedPositions}
                 />
 
                 <section className="rounded-3xl border border-zinc-200 bg-white p-5 shadow-sm">

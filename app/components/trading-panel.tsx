@@ -11,6 +11,11 @@ interface SerializedOutcome {
     sharesOutstanding: number
 }
 
+interface UserPosition {
+    outcomeId: number
+    shares: number
+}
+
 interface Props {
     selectedOutcome: SerializedOutcome | null
     selectedIndex: number | null
@@ -19,6 +24,7 @@ interface Props {
     prices: number[]
     marketStatus: string
     balance: number
+    userPositions: UserPosition[]
 }
 
 function C(q: number[], b: number): number {
@@ -27,9 +33,14 @@ function C(q: number[], b: number): number {
     return m + b * Math.log(q.reduce((sum, q_i) => sum + Math.exp((q_i - m) / b), 0));
 }
 
-export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, prices, marketStatus, balance }: Props) {
+
+export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, prices, marketStatus, balance, userPositions }: Props) {
     const [side, setSide] = useState<'buy' | 'sell'>('buy')
     const [sharesInput, setSharesInput] = useState('')
+
+    const currentShares = selectedOutcome
+        ? (userPositions.find((p) => p.outcomeId === selectedOutcome.id)?.shares ?? 0)
+        : 0;
     const [error, setError] = useState<string | null>(null)
     const [successMsg, setSuccessMsg] = useState<string | null>(null)
     const [isPending, startTransition] = useTransition()
@@ -132,10 +143,15 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
 
             {preview && (
                 <div className="mb-4 bg-zinc-50 border border-zinc-100 divide-y divide-zinc-100 text-sm overflow-hidden">
-                    <div className="flex justify-between px-3 py-2 text-zinc-500">
-                        <span>Shares</span>
-                        <span className="tabular-nums">{shares}</span>
-                    </div>
+                    {side === 'sell' && (
+                        <div className={`flex justify-between px-3 py-2 ${currentShares - shares >= 0 ? 'text-zinc-500' : 'text-rose-500'}`}>
+                            <span>Shares remaining</span>
+                            <span className="tabular-nums">
+                                {currentShares - shares}
+                            </span>
+                        </div>
+                    )}
+
                     {side === 'buy' && (
                         <>
                             <div className="flex justify-between px-3 py-2 text-zinc-500">
