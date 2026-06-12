@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
+import LocalDateTime from "./local-date-time";
 
 type Outcome = {
   id: number;
@@ -20,14 +21,10 @@ type MarketCardProps = {
   };
 };
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-  }).format(new Date(value));
-}
-
-function statusClass(status: string) {
+function statusClass(status: string, resolveDateTime: string) {
+  if (status === "OPEN" && new Date(resolveDateTime) < new Date()) {
+    return "bg-rose-100 text-rose-700";
+  }
   if (status === "OPEN") return "bg-emerald-100 text-emerald-700";
   if (status === "PENDING") return "bg-amber-100 text-amber-700";
   if (status === "RESOLVED") return "bg-blue-100 text-blue-700";
@@ -57,10 +54,11 @@ export default function MarketCard({ market }: MarketCardProps) {
 
         <span
           className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(
-            market.status
+            market.status,
+            market.closeTime
           )}`}
         >
-          {market.status}
+          {market.status === 'OPEN' && new Date(market.closeTime) < new Date() ? "Close?" : market.status}
         </span>
       </div>
 
@@ -94,7 +92,7 @@ export default function MarketCard({ market }: MarketCardProps) {
 
       <div className="mt-5 flex items-center justify-between border-t border-zinc-100 pt-4">
         <p className="text-xs text-zinc-400">
-          Closes {formatDate(market.closeTime)}
+          Closes <LocalDateTime date={market.closeTime} options={{ month: "short", day: "numeric" }} />
         </p>
 
         <div className="flex items-center gap-3">

@@ -4,10 +4,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SignOutButton from "../components/sign-out-button";
-
-function formatDate(value: Date) {
-    return new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(value);
-}
+import LocalDateTime from "@/app/components/local-date-time";
 
 function formatStringToCurrency(value: string): string {
     const [whole, frac] = value.split(".");
@@ -139,7 +136,7 @@ export default async function PortfolioPage() {
                                         </div>
                                         <div className="text-right text-zinc-500">
                                             <p className="tabular-nums font-medium text-zinc-900">${fmt(cost)}</p>
-                                            <p>{formatDate(t.createdAt)}</p>
+                                            <p><LocalDateTime date={t.createdAt} /></p>
                                         </div>
                                     </div>
                                 );

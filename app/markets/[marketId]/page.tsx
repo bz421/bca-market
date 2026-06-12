@@ -17,23 +17,7 @@ import MarketChart from "@/app/components/market-chart";
 import RefundButton from "@/app/components/refund-button";
 import SideNav from "@/app/components/side-nav"
 import TopNav from "@/app/components/top-nav";
-
-function formatDate(value: Date) {
-    return new Intl.DateTimeFormat("en-US", {
-        dateStyle: "medium",
-        timeStyle: "short",
-    }).format(value);
-}
-
-function formatCompactDate(value: Date) {
-    return new Intl.DateTimeFormat("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-        hour: "numeric",
-        minute: "2-digit",
-    }).format(value);
-}
+import LocalDateTime from "@/app/components/local-date-time";
 
 function formatMoney(value: number) {
     return new Intl.NumberFormat("en-US", {
@@ -183,7 +167,7 @@ const creatorName =
 
                             <p className="mt-3 flex items-center text-sm text-zinc-400">
                                 <Clock className="mr-1.5 h-3.5 w-3.5 shrink-0" />
-                                {formatDate(market.closeTime)}
+                                <LocalDateTime date={market.closeTime} />
                             </p>
                         </div>
 
@@ -265,7 +249,7 @@ const creatorName =
                                 Created
                             </p>
                             <p className="mt-1 whitespace-normal break-words text-sm font-semibold leading-snug text-zinc-950">
-                                {formatDate(market.createdAt)}
+                                <LocalDateTime date={market.createdAt} />
                             </p>
                         </div>
 
@@ -274,7 +258,7 @@ const creatorName =
                                 Closes
                             </p>
                             <p className="mt-1 whitespace-normal break-words text-sm font-semibold leading-snug text-zinc-950">
-                                {formatDate(market.closeTime)}
+                                <LocalDateTime date={market.closeTime} />
                             </p>
                         </div>
 
@@ -356,7 +340,7 @@ const creatorName =
                                                     {trade.outcome.name}
                                                 </p>
                                                 <p className="mt-0.5 text-xs text-zinc-400">
-                                                    {formatDate(trade.createdAt)}
+                                                    <LocalDateTime date={trade.createdAt} />
                                                 </p>
                                             </div>
 

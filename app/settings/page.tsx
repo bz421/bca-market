@@ -6,16 +6,10 @@ import { prisma } from "@/lib/prisma";
 import SignOutButton from "../components/sign-out-button";
 import TopNav from "@/app/components/top-nav";
 import SideNav from "@/app/components/side-nav"
+import LocalDateTime from "@/app/components/local-date-time";
 
 import MarkNofificationsRead from '@/app/components/mark-notifications-read';
 import { Bell, TrendingUp, TrendingDown, CheckCircle2, AlertCircle, CircleX, ArrowBigUp, ArrowBigDown } from "lucide-react";
-
-function formatDate(value: Date) {
-    return new Intl.DateTimeFormat("en-US", {
-        dateStyle: "medium",
-        timeStyle: "short",
-    }).format(value);
-}
 
 function formatRelativeTime(value: Date): string {
     const diff = Date.now() - value.getTime();
@@ -138,7 +132,7 @@ export default async function SettingsPage() {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between gap-2">
                                             <p className="text-sm font-semibold text-zinc-900">{n.title}</p>
-                                            <span className="shrink-0 text-xs text-zinc-400">
+                                            <span className="shrink-0 text-xs text-zinc-400" suppressHydrationWarning>
                                                 {formatRelativeTime(n.createdAt)}
                                             </span>
                                         </div>
@@ -192,7 +186,7 @@ export default async function SettingsPage() {
                                 </div>
                                 <div className="flex justify-between gap-3">
                                     <dt>Closes</dt>
-                                    <dd>{formatDate(market.closeTime)}</dd>
+                                    <dd><LocalDateTime date={market.closeTime} /></dd>
                                 </div>
                             </dl> */}
                             </Link>

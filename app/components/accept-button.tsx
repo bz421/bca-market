@@ -66,7 +66,7 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
                 description,
                 liquidity: parsedLiquidity,
                 outcomes,
-                closeTime,
+                closeTime: new Date(closeTime).toISOString(),
             });
 
             setOpen(false);

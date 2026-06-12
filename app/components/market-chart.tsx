@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react';
 import { CartesianGrid, Line, LineChart, Tooltip, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 
 
@@ -9,7 +10,17 @@ type Props = {
   outcomeNames: string[];
 };
 export default function MarketChart({ data, outcomeNames }: Props) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const latest = data[data.length - 1];
+
+  if (!mounted) {
+    return <div className="h-[320px] rounded-2xl bg-zinc-50/70 animate-pulse" />;
+  }
+
   return (
     <section className="rounded-2xl bg-white p-6 shadow-sm">
       <div className="mb-4 flex flex-wrap gap-4 text-sm">
