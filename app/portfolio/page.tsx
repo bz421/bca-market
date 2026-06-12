@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import SignOutButton from "../components/sign-out-button";
 import LocalDateTime from "@/app/components/local-date-time";
+import { getNormalizedStatus } from "@/lib/market-status";
 
 function formatStringToCurrency(value: string): string {
     const [whole, frac] = value.split(".");
@@ -49,7 +50,7 @@ export default async function PortfolioPage() {
     if (!session?.user?.id) redirect("/auth/signin");
     const userId = Number(session.user.id);
 
-    const [positions, trades, user] = await Promise.all([
+    const [dbPositions, dbTrades, user] = await Promise.all([
         prisma.position.findMany({
             where: { userId },
             include: { market: { include: { outcomes: { orderBy: { name: "asc" } } } }, outcome: true },
@@ -63,6 +64,22 @@ export default async function PortfolioPage() {
         prisma.user.findUnique({ where: { id: userId } }),
     ]);
 
+    const positions = dbPositions.map(pos => ({
+        ...pos,
+        market: {
+            ...pos.market,
+            status: getNormalizedStatus(pos.market.status, pos.market.closeTime)
+        }
+    }));
+
+    const trades = dbTrades.map(t => ({
+        ...t,
+        market: {
+            ...t.market,
+            status: getNormalizedStatus(t.market.status, t.market.closeTime)
+        }
+    }));
+
     const enriched = positions.map((pos) => {
         const shares = Number(pos.shares);
         const avgCost = Number(pos.avgCost);
@@ -73,13 +90,12 @@ export default async function PortfolioPage() {
         return { ...pos, shares, avgCost, realizedPnl, currentPrice, currentValue, unrealizedPnl, totalPnl: realizedPnl + unrealizedPnl };
     });
 
-    const open = enriched.filter((p) => p.market.status === "OPEN");
-    const tradedOutcomes = new Set(trades.map((t) => t.outcomeId));
-    const closed = enriched.filter((p) => tradedOutcomes.has(p.outcomeId));
+    const open = enriched.filter((p) => p.market.status === "OPEN" || p.market.status === "CLOSED");
+    const resolved = enriched.filter((p) => p.market.status === "RESOLVED");
     const positionsValue = open.reduce((s, p) => s + p.currentValue, 0);
     const totalPnl = enriched.reduce((s, p) => s + p.totalPnl, 0);
-    const hasClosed = trades.some((t) => Number(t.shares) < 0) || closed.some((p) => p.realizedPnl !== 0);
-    const biggestWin = hasClosed ? Math.max(0, ...enriched.map((p) => p.realizedPnl)) : null;
+    const hasResolved = trades.some((t) => Number(t.shares) < 0) || resolved.some((p) => p.realizedPnl !== 0);
+    const biggestWin = hasResolved ? Math.max(0, ...enriched.map((p) => p.realizedPnl)) : null;
     const balance = Number(user?.money ?? session.user.money ?? 0);
 
     return (
@@ -169,12 +185,12 @@ export default async function PortfolioPage() {
                 </section>
 
                 <section className="rounded-2xl bg-white p-6 shadow-sm">
-                    <h2 className="text-lg font-semibold text-zinc-950">Closed Positions</h2>
-                    {closed.length === 0 ? (
-                        <p className="mt-3 text-sm text-zinc-500">No closed positions.</p>
+                    <h2 className="text-lg font-semibold text-zinc-950">Resolved Positions</h2>
+                    {resolved.length === 0 ? (
+                        <p className="mt-3 text-sm text-zinc-500">No resolved positions.</p>
                     ) : (
                         <div className="mt-4 divide-y divide-zinc-100 max-h-[60vh] overflow-y-auto">
-                            {closed.map((p) => (
+                            {resolved.map((p) => (
                                 <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                                     <div>
                                         <Link href={`/markets/${p.marketId}`} className="font-medium text-zinc-900 hover:text-zinc-600">{p.market.title}</Link>

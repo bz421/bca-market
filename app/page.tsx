@@ -9,6 +9,7 @@ import PortfolioButton from './components/portfolio-button';
 import MarketCard from "./components/market-card";
 import TopNav from './components/top-nav';
 import SideNav from './components/side-nav';
+import { getNormalizedStatus } from '@/lib/market-status';
 
 
 function formatStringToCurrency(value: string): string {
@@ -48,7 +49,7 @@ export default async function Home() {
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const markets = await prisma.market.findMany({
+  const dbMarkets = await prisma.market.findMany({
     where: {
       OR: [
         { status: { not: 'RESOLVED' } },
@@ -62,6 +63,11 @@ export default async function Home() {
       },
     },
   });
+
+  const markets = dbMarkets.map(market => ({
+    ...market,
+    status: getNormalizedStatus(market.status, market.closeTime)
+  }));
 
   for (const market of markets) {
     const q = market.outcomes.map((o) => o.sharesOutstanding);

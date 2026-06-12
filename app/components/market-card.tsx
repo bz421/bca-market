@@ -21,11 +21,9 @@ type MarketCardProps = {
   };
 };
 
-function statusClass(status: string, resolveDateTime: string) {
-  if (status === "OPEN" && new Date(resolveDateTime) < new Date()) {
-    return "bg-rose-100 text-rose-700";
-  }
+function statusClass(status: string) {
   if (status === "OPEN") return "bg-emerald-100 text-emerald-700";
+  if (status === "CLOSED") return "bg-zinc-200 text-zinc-700";
   if (status === "PENDING") return "bg-amber-100 text-amber-700";
   if (status === "RESOLVED") return "bg-blue-100 text-blue-700";
   return "bg-zinc-100 text-zinc-700";
@@ -54,11 +52,10 @@ export default function MarketCard({ market }: MarketCardProps) {
 
         <span
           className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${statusClass(
-            market.status,
-            market.closeTime
+            market.status
           )}`}
         >
-          {market.status === 'OPEN' && new Date(market.closeTime) < new Date() ? "Close?" : market.status}
+          {market.status}
         </span>
       </div>
 

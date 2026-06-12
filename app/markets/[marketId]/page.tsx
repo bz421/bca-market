@@ -18,6 +18,7 @@ import RefundButton from "@/app/components/refund-button";
 import SideNav from "@/app/components/side-nav"
 import TopNav from "@/app/components/top-nav";
 import LocalDateTime from "@/app/components/local-date-time";
+import { getNormalizedStatus } from "@/lib/market-status";
 
 function formatMoney(value: number) {
     return new Intl.NumberFormat("en-US", {
@@ -106,6 +107,8 @@ export default async function MarketPage({
     if (!market) {
         notFound();
     }
+
+    market.status = getNormalizedStatus(market.status, market.closeTime);
 
     const { q, cost, prices } = getMarketState(market.outcomes, market.liquidity);
 
@@ -211,7 +214,7 @@ const creatorName =
                                 <RejectButton market={market} />
                             )}
 
-                            {market.status === "OPEN" && session?.user.admin && (
+                            {(market.status === "OPEN" || market.status === "CLOSED") && session?.user.admin && (
                                 <>
                                 <ResolveButton market={market} />
                                 <RefundButton market={market} />

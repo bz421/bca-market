@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 
 import { NotificationType, ResolutionType } from '../generated/prisma/client';
 
-export async function closeMarket(input: { marketId: number, winningOutcomeId: number }): Promise<void> {
+export async function resolveMarket(input: { marketId: number, winningOutcomeId: number }): Promise<void> {
     const session = await getServerSession(authOptions);
     if (!session?.user?.admin || !session.user.id) throw new Error("Unauthorized");
 
@@ -26,7 +26,9 @@ export async function closeMarket(input: { marketId: number, winningOutcomeId: n
         })
 
         if (!market) throw new Error(`Market ${input.marketId} not found`);
-        if (market.status !== 'OPEN') throw new Error("Market is not open");
+        if (market.status !== 'OPEN' && market.status !== 'CLOSED') {
+            throw new Error("Market is not open or closed");
+        }
 
         const winningOutcome = market.outcomes.find(o => o.id === input.winningOutcomeId);
         if (!winningOutcome) throw new Error("Winning outcome not found in market");

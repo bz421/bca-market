@@ -41,7 +41,10 @@ export async function executeTrade(
 
             if (!user) throw new Error(`User ${session.user.email} not found`);
             if (!market) throw new Error(`Market ${marketId} not found`);
-            if (market.status !== 'OPEN') throw new Error("Market is not open for trading");
+            const isClosed = market.status === 'CLOSED' || (market.status === 'OPEN' && market.closeTime <= new Date());
+            if (market.status !== 'OPEN' || isClosed) {
+                throw new Error("Market is not open for trading");
+            }
 
             const outcomeIndex = market.outcomes.findIndex(o => o.id === outcomeId);
             if (outcomeIndex === -1) throw new Error('Outcome not found in market');

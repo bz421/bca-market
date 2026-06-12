@@ -211,7 +211,7 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
 
             {!isOpen && (
                 <p className="mt-3 text-xs text-zinc-400 text-center">
-                    This market is not open for trading
+                    {marketStatus === 'RESOLVED' ? 'This market is resolved' : 'This market is closed'}
                 </p>
             )}
         </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { closeMarket } from "@/app/actions/closeMarket";
+import { resolveMarket } from "@/app/actions/resolveMarket";
 import { Outcome } from "../generated/prisma/browser"
 
 import { X } from 'lucide-react'
@@ -27,7 +27,7 @@ export default function ResolveButton({ market }: {
         setIsSubmitting(true);
 
         try {
-            await closeMarket({ marketId: market.id, winningOutcomeId });
+            await resolveMarket({ marketId: market.id, winningOutcomeId });
             setOpen(false);
             router.refresh();
         } catch (err) {

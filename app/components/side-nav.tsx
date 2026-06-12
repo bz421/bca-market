@@ -5,6 +5,7 @@ import { Home, Bell, BarChart3, PlusCircle } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import AddMarketButton from "./add-market-button";
+import { getNormalizedStatus } from "@/lib/market-status";
 
 type SideNavProps = {
   currentMarketId?: number;
@@ -12,6 +13,7 @@ type SideNavProps = {
 
 function statusDot(status: string) {
   if (status === "OPEN") return "bg-emerald-500";
+  if (status === "CLOSED") return "bg-zinc-400";
   if (status === "PENDING") return "bg-amber-500";
   if (status === "RESOLVED") return "bg-blue-500";
   return "bg-zinc-400";
@@ -23,7 +25,7 @@ export default async function SideNav({ currentMarketId }: SideNavProps) {
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const markets = await prisma.market.findMany({
+  const dbMarkets = await prisma.market.findMany({
     where: {
       OR: [
         { status: { not: "RESOLVED" } },
@@ -37,8 +39,14 @@ export default async function SideNav({ currentMarketId }: SideNavProps) {
       title: true,
       status: true,
       creatorId: true,
+      closeTime: true,
     },
   });
+
+  const markets = dbMarkets.map((market) => ({
+    ...market,
+    status: getNormalizedStatus(market.status, market.closeTime),
+  }));
 
   const visibleMarkets = markets.filter((market) => {
     if (market.status !== "PENDING") return true;
