@@ -68,7 +68,7 @@ export async function executeTrade(
             q_new[outcomeIndex] += side === 'buy' ? shares : -shares;
 
             const tradeCost = side === 'buy' ? (C(q_new, b) - C(q, b)) * 100 : (C(q, b) - C(q_new, b)) * 100;
-            const transactionFee = side === 'buy' ? tradeCost * 0.01 : 0
+            const transactionFee = side === 'buy' ? tradeCost * 0.03 : 0
             const totalCost = tradeCost + transactionFee;
 
             const avgPrice = tradeCost / shares;

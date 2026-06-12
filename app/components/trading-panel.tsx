@@ -116,7 +116,7 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                             {selectedOutcome.name}
                         </span>
                         <span className="text-sm text-zinc-500 tabular-nums shrink-0">
-                            {currentPrice !== null ? `\$${(currentPrice * 100).toFixed(2)}` : '—'}
+                            {currentPrice !== null ? `\$${(currentPrice * 100).toFixed(2)}` : '--'}
                         </span>
                     </div>
                 ) : (
@@ -159,21 +159,21 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                                 <span className="tabular-nums text-emerald-600">${(shares * 100).toFixed(2)}</span>
                             </div>
                             <div className="flex justify-between px-3 py-2 text-zinc-500">
-                                <span>1% Transaction Fee</span>
-                                <span className="tabular-nums text-emerald-600">${(preview.amount * 100 * 0.01).toFixed(2)}</span>
+                                <span>3% Transaction Fee</span>
+                                <span className="tabular-nums text-emerald-600">${(preview.amount * 100 * 0.03).toFixed(2)}</span>
                             </div>
                         </>
                     )}
                     <div className="flex justify-between px-3 py-2.5 font-semibold text-zinc-900 bg-white">
                         <span>{side === 'buy' ? 'Total cost' : 'You receive'}</span>
                         <span className={`tabular-nums ${side === 'sell' ? 'text-emerald-600' : 'text-rose-600'}`}>
-                            {side === 'sell' ? (`\$${(preview.amount * 100).toFixed(2)}`) : `\$${(preview.amount * 100 * 1.01).toFixed(2)}`}
+                            {side === 'sell' ? (`\$${(preview.amount * 100).toFixed(2)}`) : `\$${(preview.amount * 100 * 1.03).toFixed(2)}`}
                         </span>
                     </div>
                     <div className="flex justify-between px-3 py-2.5 font-semibold text-zinc-900 bg-white">
                         <span>New balance</span>
                         <span className={`tabular-nums ${side === 'sell' ? 'text-emerald-600' : ''}`}>
-                            {side === 'sell' ? `\$${(balance + preview.amount * 100).toFixed(2)}` : `\$${(balance - preview.amount * 100 * 1.01).toFixed(2)}`}
+                            {side === 'sell' ? `\$${(balance + preview.amount * 100).toFixed(2)}` : `\$${(balance - preview.amount * 100 * 1.03).toFixed(2)}`}
                         </span>
                     </div>
                 </div>
