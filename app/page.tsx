@@ -2,7 +2,6 @@ import { authOptions } from '@/lib/auth';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import SignOutButton from '@/app/components/sign-out-button';
 import AddMarketButton from './components/add-market-button';
 import SettingsButton from './components/settings-button';
 import PortfolioButton from './components/portfolio-button';
@@ -10,6 +9,7 @@ import MarketCard from "./components/market-card";
 import TopNav from './components/top-nav';
 import SideNav from './components/side-nav';
 import { getNormalizedStatus } from '@/lib/market-status';
+import MobileNav from './components/mobile-nav';
 
 
 function formatStringToCurrency(value: string): string {
@@ -94,7 +94,7 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-50">
-      <TopNav />
+      <TopNav mobileMenu={<MobileNav visibleMarkets={visibleMarkets}/>} />
 
       <main className="mx-auto grid w-full grid-cols-1 gap-6 px-8 pt-4 pb-8 xl:grid-cols-[260px_minmax(0,1fr)]">
         <SideNav />
