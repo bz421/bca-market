@@ -31,7 +31,7 @@ export const onUserCreated = inngest.createFunction(
                     `Welcome, ${name}!`,
                     `<p>Your account is ready! On BCA Market, you can request your own markets and trade on anything BCA. 
                     We're so excited to have you on board!</p>
-                    <p><a href="${process.env.NEXTAUTH_URL}/api/auth/signin" style="background:#09090b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;">Go to BCA Market</a></p>`
+                    <p><a href="${process.env.NEXTAUTH_URL}/" style="background:#09090b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;">Go to BCA Market</a></p>`
                 ),
             })
         )
