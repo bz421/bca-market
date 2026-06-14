@@ -1,6 +1,15 @@
 import authMiddleware from "next-auth/middleware";
+import { NextResponse } from 'next/server';
 
-export default authMiddleware;
+export default function middleWare(req: any) {
+    const { pathName } = req.nextUrl;
+
+    if (pathName.startsWith('/api/inngest')) {
+        return NextResponse.next();
+    }
+
+    return authMiddleware(req);
+}
 
 export const config = {
     matcher: [
