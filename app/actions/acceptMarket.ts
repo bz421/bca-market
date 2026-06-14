@@ -7,6 +7,8 @@ import { prisma } from '@/lib/prisma';
 
 import { NotificationType } from '../generated/prisma/client';
 
+import { inngest } from '@/lib/inngest';
+
 export type AcceptMarketInput = {
     marketId: number;
     title: string;
@@ -86,4 +88,15 @@ export async function acceptMarket(input: AcceptMarketInput) {
 
     revalidatePath(`/markets/${input.marketId}`);
     revalidatePath("/");
+
+    await inngest.send({
+        name: 'market/accepted',
+        data: {
+            marketId: input.marketId,
+            title,
+            description,
+            creatorId: input.creatorId,
+            creatorName: `${notifContext.creator.firstName} ${notifContext.creator.lastName}`.trim() || notifContext.creator.email
+        }
+    })
 }

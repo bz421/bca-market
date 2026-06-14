@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/prisma";
 import { Market, NotificationType } from '../generated/prisma/client';
 
+import { inngest } from '@/lib/inngest';
+
 export async function deleteMarket(market: Market) {
 
     await prisma.$transaction(async (tx) => {
@@ -29,4 +31,16 @@ export async function deleteMarket(market: Market) {
                 }))
         })
     })
+
+    const result = await inngest.send({
+        name: 'market/rejected',
+        data: {
+            marketId: market.id,
+            title: market.title,
+            creatorId: market.creatorId,
+            creatorName: ''
+        }
+    })
+
+    console.log(`Inngest result: ${JSON.stringify(result)}`)
 }
