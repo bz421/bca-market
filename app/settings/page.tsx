@@ -9,6 +9,10 @@ import SideNav from "@/app/components/side-nav"
 import MarkNofificationsRead from '@/app/components/mark-notifications-read';
 import { TrendingUp, TrendingDown, CheckCircle2, AlertCircle, CircleX, ArrowBigUp, ArrowBigDown } from "lucide-react";
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Settings' }
+
 function formatRelativeTime(value: Date): string {
     const diff = Date.now() - value.getTime();
     const diffMins = Math.floor(diff / (1000 * 60));

@@ -8,6 +8,10 @@ import SideNav from "@/app/components/side-nav";
 
 import { getUnreadNotifCount } from '@/lib/notifications';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Leaderboard' }
+
 function p(q: number[], b: number): number[] {
     const m = Math.max(...q);
     const d = q.reduce((s, q_i) => s + Math.exp((q_i - m) / b), 0);

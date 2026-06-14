@@ -12,6 +12,10 @@ import { getNormalizedStatus } from '@/lib/market-status';
 import MobileNav from './components/mobile-nav';
 import { getUnreadNotifCount } from '@/lib/notifications';
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Markets' }
+
 
 function formatStringToCurrency(value: string): string {
   // console.log(`Input: ${value}`)

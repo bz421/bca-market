@@ -21,6 +21,34 @@ import LocalDateTime from "@/app/components/local-date-time";
 import { getNormalizedStatus } from "@/lib/market-status";
 import { getUnreadNotifCount } from "@/lib/notifications";
 
+import type { Metadata } from 'next';
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ marketId: string }>;
+}): Promise<Metadata> {
+    const marketId = await params.then((p) => Number(p.marketId));
+    if (!Number.isInteger(marketId)) return { title: "Market Not Found" };
+
+    const market = await prisma.market.findUnique({
+        where: { id: marketId },
+        select: { title: true, description: true },
+    });
+
+    if (!market) return { title: "Market Not Found" };
+
+    return {
+        title: market.title,
+        description: market.description,
+        openGraph: {
+            title: market.title,
+            description: market.description,
+            url: `/markets/${marketId}`,
+        },
+    };
+}
+
 function formatMoney(value: number) {
     return new Intl.NumberFormat("en-US", {
         style: "currency",

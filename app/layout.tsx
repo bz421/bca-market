@@ -14,8 +14,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BCA Market",
-  description: "BCA Market",
+  title: {
+    default: "BCA Market",
+    template: "%s | BCA Market",
+  },
+  description: "Trade on real school events. See where the community stands before outcomes are decided.",
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
+  openGraph: {
+    siteName: "BCA Market",
+    type: "website",
+    locale: "en-US",
+  },
+  twitter: {
+    card: "summary"
+  },
+  robots: {
+    index: false,
+    follow: false,
+  }
 };
 
 export default function RootLayout({
@@ -25,7 +41,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
         <NextAuthProvider>{children}</NextAuthProvider>
       </body>
     </html>

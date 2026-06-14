@@ -7,6 +7,10 @@ import SignOutButton from "../components/sign-out-button";
 import LocalDateTime from "@/app/components/local-date-time";
 import { getNormalizedStatus } from "@/lib/market-status";
 
+import { Metadata } from 'next';
+
+export const metadata: Metadata = { title: 'Portfolio' }
+
 function formatStringToCurrency(value: string): string {
     const [whole, frac] = value.split(".");
     if (!frac) return `${whole}.00`;
