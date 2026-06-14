@@ -4,20 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { inngest } from "./inngest";
 
 export const authOptions: NextAuthOptions = {
-    events: {
-        async createUser({ user }) {
-            if (!user.email) return;
-            await inngest.send({
-                name: 'user/created',
-                data: {
-                    userId: Number(user.id),
-                    email: user.email,
-                    firstName: (user as any).firstName ?? null
-                }
-            })
-        }
-    },
-
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -45,6 +31,18 @@ export const authOptions: NextAuthOptions = {
                         lastName,
                     },
                 }));
+
+            if (!existingUser) {
+                if (!user.email) return false; // should never happen due to check above
+                await inngest.send({
+                    name: 'user/created',
+                    data: {
+                        userId: dbUser.id,
+                        email: user.email,
+                        firstName: firstName ?? null
+                    }
+                })
+            }
 
             await prisma.account.upsert({
                 where: {

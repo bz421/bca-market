@@ -19,7 +19,8 @@ export const onUserCreated = inngest.createFunction(
     },
     async ({ event, step }) => {
         const { email, firstName } = event.data
-        const name = firstName ?? 'there'
+        const name = firstName ?? 'user'
+        // console.log(`Data: ${JSON.stringify(event.data)}`)
 
         await step.run('send-onboarding-email', () =>
             resend.emails.send({
@@ -28,7 +29,9 @@ export const onUserCreated = inngest.createFunction(
                 subject: 'Welcome to BCA Market',
                 html: emailHtml(
                     `Welcome, ${name}!`,
-                    `<p>Your account is ready!</p>`
+                    `<p>Your account is ready! On BCA Market, you can request your own markets and trade on anything BCA. 
+                    We're so excited to have you on board!</p>
+                    <p><a href="${process.env.NEXTAUTH_URL}/api/auth/signin" style="background:#09090b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;">Go to BCA Market</a></p>`
                 ),
             })
         )
@@ -51,7 +54,7 @@ export const onMarketRequested = inngest.createFunction(
             })
         )
 
-        console.log(`Admins to notify: ${admins.map(a => a.email).join(', ')}`)
+        // console.log(`Admins to notify: ${admins.map(a => a.email).join(', ')}`)
 
         if (admins.length === 0) return
 
