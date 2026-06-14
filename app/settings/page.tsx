@@ -55,7 +55,7 @@ export default async function SettingsPage() {
             <MarkNofificationsRead hasUnread={hasUnread} />
 
             <main className="mx-auto grid w-full grid-cols-1 gap-6 px-6 py-8 xl:grid-cols-[260px_minmax(0,1fr)]">
-                <SideNav />
+                <SideNav unreadCount={unreadCount} />
                 <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-10">
                     <header className="flex items-center justify-between gap-6 rounded-2xl bg-white p-6 shadow-sm">
                         <div>

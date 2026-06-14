@@ -6,6 +6,8 @@ import { prisma } from "@/lib/prisma";
 import TopNav from "@/app/components/top-nav";
 import SideNav from "@/app/components/side-nav";
 
+import { getUnreadNotifCount } from '@/lib/notifications';
+
 function p(q: number[], b: number): number[] {
     const m = Math.max(...q);
     const d = q.reduce((s, q_i) => s + Math.exp((q_i - m) / b), 0);
@@ -31,7 +33,7 @@ const MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' };
 
 export default async function LeaderboardPage() {
     const session = await getServerSession(authOptions);
-    if (!session) redirect('/auth/signin');
+    if (!session || !session.user.email) redirect('/auth/signin');
 
     const users = await prisma.user.findMany({
         where: {
@@ -68,12 +70,14 @@ export default async function LeaderboardPage() {
         }
     }).sort((a, b) => b.netWorth - a.netWorth);
 
+    const unreadCount = await getUnreadNotifCount(session.user.email);
+
     return (
         <div className="min-h-screen bg-zinc-50">
             <TopNav />
 
             <main className="mx-auto grid w-full grid-cols-1 gap-6 px-6 py-8 xl:grid-cols-[260px_minmax(0,1fr)]">
-                <SideNav />
+                <SideNav unreadCount={unreadCount} />
 
                 <div className="w-full mx-auto">
                     <h1 className="text-2xl font-semibold text-zinc-900 mb-1">Leaderboard</h1>
