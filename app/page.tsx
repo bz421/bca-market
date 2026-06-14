@@ -10,6 +10,7 @@ import TopNav from './components/top-nav';
 import SideNav from './components/side-nav';
 import { getNormalizedStatus } from '@/lib/market-status';
 import MobileNav from './components/mobile-nav';
+import { getUnreadNotifCount } from '@/lib/notifications';
 
 
 function formatStringToCurrency(value: string): string {
@@ -43,7 +44,7 @@ export default async function Home() {
   const session = await getServerSession(authOptions);
   const user = session?.user
 
-  if (!session) {
+  if (!session || !session.user?.email) {
     redirect('/auth/signin');
   }
 
@@ -86,18 +87,20 @@ export default async function Home() {
     return user?.id === market.creatorId.toString();
   });
 
-  const openMarkets = visibleMarkets.filter((market) => market.status === 'OPEN');
-  const pendingMarkets = visibleMarkets.filter((market) => market.status === 'PENDING');
-  const resolvedMarkets = visibleMarkets.filter((market) => market.status === 'RESOLVED');
+  const unreadCount = await getUnreadNotifCount(session.user.email);
+
+  // const openMarkets = visibleMarkets.filter((market) => market.status === 'OPEN');
+  // const pendingMarkets = visibleMarkets.filter((market) => market.status === 'PENDING');
+  // const resolvedMarkets = visibleMarkets.filter((market) => market.status === 'RESOLVED');
 
   // console.log(`Money: ${user?.money}, Formatted: ${formatStringToCurrency(user?.money?.toString() || '0.00')}`)
 
   return (
     <div className="min-h-screen bg-zinc-50">
-      <TopNav mobileMenu={<MobileNav visibleMarkets={visibleMarkets}/>} />
+      <TopNav mobileMenu={<MobileNav visibleMarkets={visibleMarkets} unreadCount={unreadCount} />} />
 
       <main className="mx-auto grid w-full grid-cols-1 gap-6 px-8 pt-4 pb-8 xl:grid-cols-[260px_minmax(0,1fr)]">
-        <SideNav />
+        <SideNav unreadCount={unreadCount} />
 
         <section className="flex min-w-0 flex-col gap-6">
           <header className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm">
@@ -128,7 +131,7 @@ export default async function Home() {
 
                 <div className="flex flex-row items-center gap-2">
                   <PortfolioButton />
-                  <SettingsButton />
+                  <SettingsButton unreadCount={unreadCount} />
                   <AddMarketButton />
                 </div>
               </div>

@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { Home, Bell, BarChart3 } from "lucide-react";
+import { Home, Bell, BellDot, BarChart3 } from "lucide-react";
 import AddMarketButton from "./add-market-button";
 // import { Market } from "../generated/prisma/browser";
 
 import PodiumCopy from './podium-copy'; // TODO: change once lucide-react updates with podium icon
+import styles from './settings-button.module.css';
 
 function statusDot(status: string) {
     if (status === "OPEN") return "bg-emerald-500";
@@ -19,7 +20,7 @@ type Market = {
     status: string;
 }
 
-export default function SideNavContent({visibleMarkets, currentMarketId}: {visibleMarkets: Market[], currentMarketId?: number}) {
+export default function SideNavContent({visibleMarkets, currentMarketId, unreadCount}: {visibleMarkets: Market[], currentMarketId?: number, unreadCount: number}) {
     return (
         <>
             <nav className="space-y-1 border-y border-zinc-100 py-0">
@@ -43,7 +44,7 @@ export default function SideNavContent({visibleMarkets, currentMarketId}: {visib
                     href="/settings"
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950"
                 >
-                    <Bell className="h-4 w-4" />
+                    {unreadCount > 0 ? <BellDot className={`h-4 w-4 ${styles['red-dot-bell']}`} /> : <Bell className="h-4 w-4" />}
                     Notifications
                 </Link>
 

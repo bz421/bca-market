@@ -13,9 +13,11 @@ type Market = {
 export default function MobileNav({
     visibleMarkets,
     currentMarketId,
+    unreadCount
 }: {
     visibleMarkets: Market[];
     currentMarketId?: number;
+    unreadCount: number;
 }) {
     const [open, setOpen] = useState(false);
 
@@ -43,6 +45,7 @@ export default function MobileNav({
                         <SideNavContent
                             visibleMarkets={visibleMarkets}
                             currentMarketId={currentMarketId}
+                            unreadCount={unreadCount}
                         />
                     </div>
                 </>

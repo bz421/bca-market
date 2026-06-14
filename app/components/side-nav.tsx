@@ -10,6 +10,7 @@ import SideNavContent from "./side-nav-content";
 
 type SideNavProps = {
   currentMarketId?: number;
+  unreadCount: number;
 };
 
 function statusDot(status: string) {
@@ -20,7 +21,7 @@ function statusDot(status: string) {
   return "bg-zinc-400";
 }
 
-export default async function SideNav({ currentMarketId }: SideNavProps) {
+export default async function SideNav({ currentMarketId, unreadCount }: SideNavProps) {
   const session = await getServerSession(authOptions);
   const user = session?.user;
 
@@ -57,7 +58,7 @@ export default async function SideNav({ currentMarketId }: SideNavProps) {
 
   return (
     <aside className="sticky top-6 hidden h-[calc(100vh-3rem)] w-64 shrink-0 flex-col rounded-3xl xl:flex">
-      <SideNavContent visibleMarkets={visibleMarkets} currentMarketId={currentMarketId} />
+      <SideNavContent visibleMarkets={visibleMarkets} currentMarketId={currentMarketId} unreadCount={unreadCount} />
     </aside>
   );
 }
