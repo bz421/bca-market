@@ -93,7 +93,7 @@ model Trade {
   outcomeId Int
   market    Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
   outcome   Outcome  @relation(fields: [outcomeId], references: [id], onDelete: Cascade)
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([marketId])
   @@index([userId])
