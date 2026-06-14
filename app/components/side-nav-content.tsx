@@ -3,6 +3,8 @@ import { Home, Bell, BarChart3 } from "lucide-react";
 import AddMarketButton from "./add-market-button";
 // import { Market } from "../generated/prisma/browser";
 
+import PodiumCopy from './podium-copy'; // TODO: change once lucide-react updates with podium icon
+
 function statusDot(status: string) {
     if (status === "OPEN") return "bg-emerald-500";
     if (status === "CLOSED") return "bg-zinc-400";
@@ -13,7 +15,7 @@ function statusDot(status: string) {
 
 type Market = {
     id: number;
-    title: string;
+    title: string;  
     status: string;
 }
 
@@ -43,6 +45,13 @@ export default function SideNavContent({visibleMarkets, currentMarketId}: {visib
                 >
                     <Bell className="h-4 w-4" />
                     Notifications
+                </Link>
+
+                <Link 
+                    href="/leaderboard"
+                    className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950">
+                    <PodiumCopy className="h-4 w-4" />
+                    Leaderboard
                 </Link>
 
                 <AddMarketButton variant="nav" />
