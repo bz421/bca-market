@@ -1,15 +1,6 @@
 import authMiddleware from "next-auth/middleware";
-import { NextResponse } from 'next/server';
 
-export default function middleWare(req: any) {
-    const { pathName } = req.nextUrl;
-
-    if (pathName.startsWith('/api/inngest')) {
-        return NextResponse.next();
-    }
-
-    return authMiddleware(req);
-}
+export default authMiddleware;
 
 export const config = {
     matcher: [
@@ -22,6 +13,6 @@ export const config = {
          * - favicon.ico (favicon file)
          * - public folder
          */
-        "/((?!api/auth|api/inngest(?:/.*)?|auth|_next/static|_next/image|favicon.ico|public).*)",
+        "/((?!api/auth|api/inngest|auth|_next/static|_next/image|favicon.ico|public).*)",
     ],
 };
