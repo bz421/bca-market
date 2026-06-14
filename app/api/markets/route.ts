@@ -70,15 +70,15 @@ export async function POST(req: Request) {
         }))
     })
 
-    // const result = await inngest.send({
-    //     name: 'market/requested',
-    //     data: {
-    //         marketId: market.id,
-    //         title: market.title,
-    //         creatorId: creator.id,
-    //         creatorName: `${creator.firstName} ${creator.lastName}`.trim() || creator.email
-    //     }
-    // })
+    const result = await inngest.send({
+        name: 'market/requested',
+        data: {
+            marketId: market.id,
+            title: market.title,
+            creatorId: creator.id,
+            creatorName: `${creator.firstName} ${creator.lastName}`.trim() || creator.email
+        }
+    })
 
     // console.log(`Inngest result: ${JSON.stringify(result)}`)
 
