@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { NotificationType } from "@/app/generated/prisma/browser";
+import { inngest } from "@/lib/inngest";
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
 
     const creator = await prisma.user.findUnique({
         where: { email: session.user.email },
-        select: { id: true },
+        select: { id: true, firstName: true, lastName: true, email: true },
     });
 
     if (!creator) {
@@ -68,6 +69,18 @@ export async function POST(req: Request) {
             body: `A new market is awaiting review.`
         }))
     })
+
+    // const result = await inngest.send({
+    //     name: 'market/requested',
+    //     data: {
+    //         marketId: market.id,
+    //         title: market.title,
+    //         creatorId: creator.id,
+    //         creatorName: `${creator.firstName} ${creator.lastName}`.trim() || creator.email
+    //     }
+    // })
+
+    // console.log(`Inngest result: ${JSON.stringify(result)}`)
 
     return NextResponse.json({ market }, { status: 201 });
 }

@@ -2,9 +2,10 @@
 
 import { prisma } from "@/lib/prisma";
 import { Market, NotificationType, ResolutionType, MarketStatus } from '../generated/prisma/client';
+import { inngest } from "@/lib/inngest";
 
 export async function refundMarket(market: Market) {
-    await prisma.$transaction(async (tx) => {
+    const refundsByUser = await prisma.$transaction(async (tx) => {
         const admins = await tx.user.findMany({
             where: { admin: true }
         })
@@ -24,14 +25,14 @@ export async function refundMarket(market: Market) {
             refundsByUser.set(position.userId, (refundsByUser.get(position.userId) ?? 0) + refund);
         }
 
-        await Promise.all(Array.from(refundsByUser.entries()).map(([userId, refundAmount]) => {
+        await Promise.all(Array.from(refundsByUser.entries()).map(([userId, refundAmount]) =>
             tx.user.update({
                 where: { id: userId },
                 data: {
                     money: { increment: refundAmount }
                 }
             })
-        }))
+        ))
 
         await tx.market.update({
             where: { id: market.id },
@@ -58,7 +59,17 @@ export async function refundMarket(market: Market) {
             }))
             ]
         })
+
+        return refundsByUser;
     })
 
+    await inngest.send({
+        name: 'market/refunded',
+        data: {
+            marketId: market.id,
+            title: market.title,
+            refunds: Array.from(refundsByUser.entries()).map(([userId, amount]) => ({ userId, amount }))
+        }
+    })
 
 }

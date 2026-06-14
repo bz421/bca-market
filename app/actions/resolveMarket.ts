@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
 import { NotificationType, ResolutionType } from '../generated/prisma/client';
+import { inngest } from "@/lib/inngest";
 
 export async function resolveMarket(input: { marketId: number, winningOutcomeId: number }): Promise<void> {
     const session = await getServerSession(authOptions);
@@ -123,4 +124,14 @@ export async function resolveMarket(input: { marketId: number, winningOutcomeId:
 
     revalidatePath(`/markets/${input.marketId}`);
     revalidatePath("/");
+
+    await inngest.send({
+        name: 'market/resolved',
+        data: {
+            marketId: input.marketId,
+            title: resolveContext.marketTitle,
+            winningOutcome: resolveContext.winningOutcomeName,
+            positions: resolveContext.positions
+        }
+    })
 }

@@ -1,8 +1,23 @@
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { prisma } from "@/lib/prisma";
+import { inngest } from "./inngest";
 
 export const authOptions: NextAuthOptions = {
+    events: {
+        async createUser({ user }) {
+            if (!user.email) return;
+            await inngest.send({
+                name: 'user/created',
+                data: {
+                    userId: Number(user.id),
+                    email: user.email,
+                    firstName: (user as any).firstName ?? null
+                }
+            })
+        }
+    },
+
     providers: [
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
