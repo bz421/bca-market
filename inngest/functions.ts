@@ -349,9 +349,9 @@ export const onMarketDigest = inngest.createFunction(
         // {{{RESEND_UNSUBSCRIBE_URL}}} is automatically replaced with a per-contact
         // unsubscribe link; Resend handles the unsubscribe flow automatically.
         const html = emailHtml(
-            `${timeLabel} Market Digest`,
-            `<p>Hi {{{contact.first_name|there}}},</p>
-             <p><strong>${marketCount} new market${plural ? 's have' : ' has'} opened</strong> on BCA Market since the last digest:</p>
+            `${timeLabel} Markets`,
+            `<p>Good ${timeLabel}, {{{contact.first_name|there}}}</p>
+             <p><strong>${marketCount} new market${plural ? 's have' : ' has'} opened</strong> on BCA Market:</p>
              <table style="width:100%;border-collapse:collapse;border-top:1px solid #e4e4e7;">
                ${marketRowsHtml}
              </table>
