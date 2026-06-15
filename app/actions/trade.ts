@@ -20,6 +20,7 @@ export async function executeTrade(
     shares: number,
     side: "buy" | "sell"
 ): Promise<{ success: boolean; error?: string }> {
+    if (!Number.isInteger(shares) || shares <= 0 || shares > 1000) throw new Error('Invalid share amount');
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
@@ -66,9 +67,12 @@ export async function executeTrade(
             const q = market.outcomes.map(o => o.sharesOutstanding);
             const q_new = [...q];
             q_new[outcomeIndex] += side === 'buy' ? shares : -shares;
+            if (q_new[outcomeIndex] < 0) {
+                throw new Error('Cannot reduce shares below zero'); 
+            }
 
-            const tradeCost = side === 'buy' ? (C(q_new, b) - C(q, b)) * 100 : (C(q, b) - C(q_new, b)) * 100;
-            const transactionFee = side === 'buy' ? tradeCost * 0.03 : 0
+            const tradeCost = side === 'buy' ? Math.max((C(q_new, b) - C(q, b)) * 100, shares * 0.10) : (C(q, b) - C(q_new, b)) * 100;
+            const transactionFee = side === 'buy' ? Math.max(tradeCost * 0.03, 0.50) : 0
             const totalCost = tradeCost + transactionFee;
 
             const avgPrice = tradeCost / shares;

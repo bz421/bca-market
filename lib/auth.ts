@@ -39,7 +39,8 @@ export const authOptions: NextAuthOptions = {
                     data: {
                         userId: dbUser.id,
                         email: user.email,
-                        firstName: firstName ?? null
+                        firstName: firstName ?? null,
+                        lastName: lastName ?? null
                     }
                 })
             }

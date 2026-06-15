@@ -18,7 +18,7 @@ export const onUserCreated = inngest.createFunction(
         triggers: [userCreated],
     },
     async ({ event, step }) => {
-        const { email, firstName } = event.data
+        const { email, firstName, lastName } = event.data
         const name = firstName ?? 'user'
         // console.log(`Data: ${JSON.stringify(event.data)}`)
 
@@ -33,6 +33,20 @@ export const onUserCreated = inngest.createFunction(
                     We're so excited to have you on board!</p>
                     <p><a href="${process.env.NEXTAUTH_URL}/" style="background:#09090b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;">Go to BCA Market</a></p>`
                 ),
+            })
+        )
+
+        await step.run('add-to-digests', () =>
+            resend.contacts.create({
+                segments: [
+                    { id: process.env.MORNING_DIGEST_SEGMENT_ID! },
+                    { id: process.env.NOON_DIGEST_SEGMENT_ID! },
+                    { id: process.env.EVENING_DIGEST_SEGMENT_ID! },
+                ],
+                email,
+                firstName: firstName ?? undefined,
+                lastName: lastName ?? undefined,
+                unsubscribed: false
             })
         )
     }
@@ -105,41 +119,41 @@ export const onMarketAccepted = inngest.createFunction(
             )
         }
 
-        // Broadcast to all other users
-        const allUsers = await step.run('fetch-all-users', () =>
-            prisma.user.findMany({
-                where: {
-                    AND: [
-                        { id: { not: creatorId } },
-                        { id: { not: Number(process.env.TREASURY_ACCOUNT_ID) } },
-                    ]
-                },
-                select: { email: true },
-            })
-        )
+        // // Broadcast to all other users
+        // const allUsers = await step.run('fetch-all-users', () =>
+        //     prisma.user.findMany({
+        //         where: {
+        //             AND: [
+        //                 { id: { not: creatorId } },
+        //                 { id: { not: Number(process.env.TREASURY_ACCOUNT_ID) } },
+        //             ]
+        //         },
+        //         select: { email: true },
+        //     })
+        // )
 
-        const batches = chunk(allUsers)
-        for (let i = 0; i < batches.length; i++) {
-            const batch = batches[i]
-            await step.run(`email-batch-${i}`, () =>
-                resend.batch.send(
-                    batch.map(u => ({
-                        from: FROM,
-                        to: u.email,
-                        subject: `New Market Open: "${title}"`,
-                        html: emailHtml(
-                            'New Market Now Open',
-                            `<p>A new market is open for trading on BCA Market:</p>
-                             <p style="padding:12px 16px;background:#f4f4f5;border-radius:8px;">
-                               <strong>${title}</strong><br>
-                               <span style="color:#71717a;font-size:14px;">${description}</span>
-                             </p>
-                             <p><a href="${process.env.NEXTAUTH_URL}/markets/${marketId}" style="background:#09090b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;">View Market</a></p>`
-                        ),
-                    }))
-                )
-            )
-        }
+        // const batches = chunk(allUsers)
+        // for (let i = 0; i < batches.length; i++) {
+        //     const batch = batches[i]
+        //     await step.run(`email-batch-${i}`, () =>
+        //         resend.batch.send(
+        //             batch.map(u => ({
+        //                 from: FROM,
+        //                 to: u.email,
+        //                 subject: `New Market Open: "${title}"`,
+        //                 html: emailHtml(
+        //                     'New Market Now Open',
+        //                     `<p>A new market is open for trading on BCA Market:</p>
+        //                      <p style="padding:12px 16px;background:#f4f4f5;border-radius:8px;">
+        //                        <strong>${title}</strong><br>
+        //                        <span style="color:#71717a;font-size:14px;">${description}</span>
+        //                      </p>
+        //                      <p><a href="${process.env.NEXTAUTH_URL}/markets/${marketId}" style="background:#09090b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;">View Market</a></p>`
+        //                 ),
+        //             }))
+        //         )
+        //     )
+        // }
     }
 )
 
@@ -276,5 +290,114 @@ export const onMarketResolved = inngest.createFunction(
                 )
             )
         }
+    }
+)
+
+export const onMarketDigest = inngest.createFunction(
+    {
+        id: 'market-digest',
+        triggers: [
+            { cron: 'TZ=America/New_York 0 7 * * *' },
+            { cron: 'TZ=America/New_York 0 12 * * *' },
+            { cron: 'TZ=America/New_York 0 18 * * *' },
+        ]
+    },
+    async ({ step }) => {
+        const markets = await step.run('fetch-undigested-markets', () =>
+            prisma.market.findMany({
+                where: {
+                    status: 'OPEN',
+                    sentInDigest: false,
+                },
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                },
+                orderBy: { approvedAt: 'asc' },
+            })
+        )
+
+        if (markets.length === 0) {
+            return { sent: false, reason: 'no new markets since last digest' }
+        }
+
+        const now = new Date()
+        const hour = now.getUTCHours()
+        const timeLabel = (11 <= hour && hour <= 15) ? 'Morning' : (16 <= hour && hour <= 20) ? 'Afternoon' : 'Evening'
+
+        const marketRowsHtml = markets
+            .map(
+                (m) => `
+                <tr>
+                  <td style="padding:16px 0;border-bottom:1px solid #e4e4e7;">
+                    <p style="margin:0 0 4px;font-size:15px;font-weight:600;color:#09090b;">${m.title}</p>
+                    <p style="margin:0 0 10px;font-size:14px;color:#71717a;">${m.description}</p>
+                    <a href="${process.env.NEXTAUTH_URL}/markets/${m.id}"
+                       style="font-size:13px;font-weight:500;color:#09090b;text-decoration:none;">
+                      Trade now
+                    </a>
+                  </td>
+                </tr>`
+            )
+            .join('')
+
+        const marketCount = markets.length
+        const plural = marketCount !== 1
+
+        // {{{contact.first_name|there}}} is Resend's personalization syntax for Broadcasts.
+        // {{{RESEND_UNSUBSCRIBE_URL}}} is automatically replaced with a per-contact
+        // unsubscribe link; Resend handles the unsubscribe flow automatically.
+        const html = emailHtml(
+            `${timeLabel} Market Digest`,
+            `<p>Hi {{{contact.first_name|there}}},</p>
+             <p><strong>${marketCount} new market${plural ? 's have' : ' has'} opened</strong> on BCA Market since the last digest:</p>
+             <table style="width:100%;border-collapse:collapse;border-top:1px solid #e4e4e7;">
+               ${marketRowsHtml}
+             </table>
+             <p style="margin-top:24px;">
+               <a href="${process.env.NEXTAUTH_URL}/"
+                  style="background:#09090b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;">
+                 Go to BCA Market
+               </a>
+             </p>
+             <p style="margin-top:40px;font-size:12px;color:#a1a1aa;">
+               You're receiving this because you have a BCA Market account.
+               <a href="{{{RESEND_UNSUBSCRIBE_URL}}}" style="color:#a1a1aa;">Unsubscribe</a> at any time.
+             </p>`
+        )
+
+        // "name" is internal only — used to identify this broadcast in the Resend dashboard.
+        // "send: true" creates and sends in one API call (no separate send step needed).
+        const broadcastName = `digest-${now.toISOString().slice(0, 13)}h` // e.g. "digest-2025-06-15T12h"
+
+        await step.run('send-broadcast', () => {
+            const result = resend.broadcasts.create({
+                segmentId: timeLabel === 'Morning'
+                    ? process.env.MORNING_DIGEST_SEGMENT_ID!
+                    : timeLabel === 'Afternoon'
+                        ? process.env.NOON_DIGEST_SEGMENT_ID!
+                        : process.env.EVENING_DIGEST_SEGMENT_ID!,
+                from: FROM,
+                subject: `Good ${timeLabel}! ${marketCount} new market${plural ? 's' : ''} open`,
+                html,
+                name: broadcastName,
+                send: true,
+            })
+
+            console.log(`Broadcast result: ${JSON.stringify(result)}`)
+        }
+        )
+
+        // Mark these markets as digested so they don't appear in the next digest.
+        const marketIds = markets.map((m) => m.id)
+        await step.run('mark-markets-digested', () =>
+            prisma.market.updateMany({
+                where: { id: { in: marketIds } },
+                data: { sentInDigest: true },
+            })
+        )
+
+        return { sent: true, count: marketCount, broadcastName }
     }
 )

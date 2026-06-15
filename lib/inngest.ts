@@ -9,6 +9,7 @@ export type UserCreatedData = {
     userId: number
     email: string
     firstName: string | null
+    lastName: string | null
 }
 
 export const userCreated = eventType('user/created', {

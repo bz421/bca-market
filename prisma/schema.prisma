@@ -62,6 +62,7 @@ model Market {
   outcomes          Outcome[]    @relation("MarketOutcomes")
   positions         Position[]
   trades            Trade[]
+  sentInDigest      Boolean      @default(false)
 
   @@index([status])
   @@index([closeTime])
