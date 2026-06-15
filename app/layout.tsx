@@ -40,10 +40,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
-        <NextAuthProvider>{children}</NextAuthProvider>
-      </body>
-    </html>
+    // <html lang="en">
+    //   <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
+    //     <NextAuthProvider>{children}</NextAuthProvider>
+    //   </body>
+    // </html>
+    <div>
+      Under Maintenance. Please check back later.
+    </div>
   );
 }
