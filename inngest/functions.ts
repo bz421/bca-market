@@ -297,8 +297,8 @@ export const onMarketDigest = inngest.createFunction(
     {
         id: 'market-digest',
         triggers: [
-            { cron: 'TZ=America/New_York 0 7 * * *' },
-            { cron: 'TZ=America/New_York 0 12 * * *' },
+            { cron: 'TZ=America/New_York 30 7 * * *' },
+            { cron: 'TZ=America/New_York 30 12 * * *' },
             { cron: 'TZ=America/New_York 0 18 * * *' },
         ]
     },
@@ -350,7 +350,7 @@ export const onMarketDigest = inngest.createFunction(
         // unsubscribe link; Resend handles the unsubscribe flow automatically.
         const html = emailHtml(
             `${timeLabel} Markets`,
-            `<p>Good ${timeLabel}, {{{contact.first_name|there}}}</p>
+            `<p>Good ${timeLabel} {{{contact.first_name|trader}}}!</p>
              <p><strong>${marketCount} new market${plural ? 's are' : ' is'} featured</strong> on BCA Market:</p>
              <table style="width:100%;border-collapse:collapse;border-top:1px solid #e4e4e7;">
                ${marketRowsHtml}
