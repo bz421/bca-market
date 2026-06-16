@@ -52,13 +52,13 @@ export default async function Home() {
     redirect('/auth/signin');
   }
 
-  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  const twoDaysAgo = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000);
 
   const dbMarkets = await prisma.market.findMany({
     where: {
       OR: [
         { status: { not: 'RESOLVED' } },
-        { resolvedAt: { gte: threeDaysAgo } }
+        { resolvedAt: { gte: twoDaysAgo } }
       ]
     },
     orderBy: [{ closeTime: 'asc' }, { createdAt: 'desc' }],
