@@ -297,7 +297,7 @@ export const onMarketDigest = inngest.createFunction(
     {
         id: 'market-digest',
         triggers: [
-            { cron: 'TZ=America/New_York 0 7 * * *' },
+            { cron: 'TZ=America/New_York 35 7 * * *' },
             { cron: 'TZ=America/New_York 0 12 * * *' },
             { cron: 'TZ=America/New_York 0 18 * * *' },
         ]
