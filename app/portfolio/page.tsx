@@ -147,7 +147,7 @@ export default async function PortfolioPage() {
                             {trades.slice(0, 15).map((t) => {
                                 const shares = Number(t.shares);
                                 const cost = Math.abs(Number(t.cost));
-                                const side = shares > 0 ? "Bought" : "Sold";
+                                const side = shares > 0 ? "Buy" : "Sell";
                                 return (
                                     <div key={t.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
                                         <div>

@@ -68,7 +68,7 @@ export default function MarketChart({ data, outcomeNames }: Props) {
           {outcomeNames.map((name, i) => (
             <Line
               key={name}
-              type="stepAfter"
+              type="linear"
               dataKey={name}
               stroke={COLORS[i % COLORS.length]}
               strokeWidth={2}

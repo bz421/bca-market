@@ -389,7 +389,7 @@ export default async function MarketPage({
                                             >
                                                 <div>
                                                     <p className="font-semibold text-zinc-950">
-                                                        {isBuy ? "Bought" : "Sold"}{" "}
+                                                        {isBuy ? "Buy" : "Sell"}{" "}
                                                         {Math.abs(shares).toFixed(0)} shares of{" "}
                                                         {trade.outcome.name}
                                                     </p>
