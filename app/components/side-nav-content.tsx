@@ -1,9 +1,8 @@
 import Link from "next/link";
-import { Home, Bell, BellDot, BarChart3 } from "lucide-react";
+import { Home, Bell, BellDot, BarChart3, Podium } from "lucide-react";
 import AddMarketButton from "./add-market-button";
 // import { Market } from "../generated/prisma/browser";
 
-import PodiumCopy from './podium-copy'; // TODO: change once lucide-react updates with podium icon
 import styles from './settings-button.module.css';
 
 function statusDot(status: string) {
@@ -51,7 +50,7 @@ export default function SideNavContent({visibleMarkets, currentMarketId, unreadC
                 <Link 
                     href="/leaderboard"
                     className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-zinc-700 transition hover:bg-zinc-100 hover:text-zinc-950">
-                    <PodiumCopy className="h-4 w-4" />
+                    <Podium className="h-4 w-4" />
                     Leaderboard
                 </Link>
 
