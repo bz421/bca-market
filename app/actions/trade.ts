@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 
 import { NotificationType } from '../generated/prisma/client';
+import { Prisma } from "@/app/generated/prisma/client";
 
 
 function C(q: number[], b: number): number {
@@ -54,12 +55,13 @@ export async function executeTrade(
                 where: { userId_outcomeId: { userId: user.id, outcomeId } }
             })
 
-            const currentShares = Number(userPosition?.shares ?? 0);
-            const currentAvgCost = Number(userPosition?.avgCost ?? 0);
-            const currentRealizedPnl = Number(userPosition?.realizedPnl ?? 0);
+            const currentShares = new Prisma.Decimal(userPosition?.shares ?? 0);
+            const currentAvgCost = new Prisma.Decimal(userPosition?.avgCost ?? 0);
+            const currentRealizedPnl = new Prisma.Decimal(userPosition?.realizedPnl ?? 0);
+            const decShares = new Prisma.Decimal(shares);
 
             // stop short-selling for now
-            if (side === 'sell' && shares > currentShares) {
+            if (side === 'sell' && decShares.gt(currentShares)) {
                 throw new Error('Insufficient shares to sell');
             }
 
@@ -72,35 +74,36 @@ export async function executeTrade(
             }
 
             const tradeCost = side === 'buy' ? Math.max((C(q_new, b) - C(q, b)) * 100, shares * 0.10) : (C(q, b) - C(q_new, b)) * 100;
-            const transactionFee = side === 'buy' ? Math.max(tradeCost * 0.03, 0.50) : 0
-            const totalCost = tradeCost + transactionFee;
+            const decTradeCost = new Prisma.Decimal(tradeCost);
+            const decTransactionFee = side === 'buy' ? Prisma.Decimal.max(decTradeCost.mul(0.03), 0.50) : new Prisma.Decimal(0);
+            const decTotalCost = decTradeCost.plus(decTransactionFee);
 
-            const avgPrice = tradeCost / shares;
+            const decAvgPrice = decTradeCost.div(decShares);
             
-            if (side === 'buy' && Number(user.money) < totalCost) {
+            if (side === 'buy' && new Prisma.Decimal(user.money).lt(decTotalCost)) {
                 throw new Error('Insufficient funds to buy shares');
             }
 
-            let newShares: number;
-            let newAvgCost: number;
-            let newRealizedPnl: number;
+            let newShares: Prisma.Decimal;
+            let newAvgCost: Prisma.Decimal;
+            let newRealizedPnl: Prisma.Decimal;
 
             if (side === 'buy') {
-                newShares = currentShares + shares;
-                newAvgCost = (currentAvgCost * currentShares + tradeCost) / newShares;
+                newShares = currentShares.plus(decShares);
+                newAvgCost = currentAvgCost.mul(currentShares).plus(decTradeCost).div(newShares);
                 newRealizedPnl = currentRealizedPnl; // buying does not realize PnL
             }
             else {
-                newShares = currentShares - shares;
-                newAvgCost = currentShares > 0 ? currentAvgCost : 0; // if we sold all shares, reset avg cost to 0
-                newRealizedPnl = currentRealizedPnl + (tradeCost - currentAvgCost * shares); 
+                newShares = currentShares.minus(decShares);
+                newAvgCost = newShares.gt(0) ? currentAvgCost : new Prisma.Decimal(0); // if we sold all shares, reset avg cost to 0
+                newRealizedPnl = currentRealizedPnl.plus(decTradeCost.minus(currentAvgCost.mul(decShares))); 
             }
 
             await Promise.all([
                 tx.user.update({
                     where: { id: user.id },
                     data: {
-                        money: side === 'buy' ? { decrement: totalCost } : { increment: totalCost }
+                        money: side === 'buy' ? { decrement: decTotalCost } : { increment: decTotalCost }
                     }
                 }),
 
@@ -115,7 +118,7 @@ export async function executeTrade(
                 tx.user.update({
                     where: { id: Number(process.env.TREASURY_ACCOUNT_ID) },
                     data: {
-                        money: side === 'buy' ? { increment: totalCost } : { decrement: totalCost }
+                        money: side === 'buy' ? { increment: decTotalCost } : { decrement: decTotalCost }
                     }
                 }),
 
@@ -141,9 +144,9 @@ export async function executeTrade(
                         userId: user.id,
                         marketId: marketId,
                         outcomeId: outcomeId,
-                        shares: side === 'buy' ? shares : -shares,
-                        price: avgPrice,
-                        cost: side === 'buy' ? tradeCost : -tradeCost
+                        shares: side === 'buy' ? decShares : decShares.negated(),
+                        price: decAvgPrice,
+                        cost: side === 'buy' ? decTradeCost : decTradeCost.negated()
                     }
                 })
             ]);
@@ -153,7 +156,7 @@ export async function executeTrade(
                 firstName: user.firstName ?? 'User',
                 marketTitle: market.title,
                 outcomeName: market.outcomes[outcomeIndex].name,
-                totalCost,
+                totalCost: decTotalCost.toNumber(),
                 shares,
                 side
             }

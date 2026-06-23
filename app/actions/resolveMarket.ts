@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 
 import { NotificationType, ResolutionType } from '../generated/prisma/client';
 import { inngest } from "@/lib/inngest";
+import { Prisma } from "@/app/generated/prisma/client";
 
 export async function resolveMarket(input: { marketId: number, winningOutcomeId: number }): Promise<void> {
     const session = await getServerSession(authOptions);
@@ -41,12 +42,14 @@ export async function resolveMarket(input: { marketId: number, winningOutcomeId:
         const winners = allPositions.filter(p => p.outcomeId === input.winningOutcomeId);
         const losers = allPositions.filter(p => p.outcomeId !== input.winningOutcomeId);
 
-        const totalPayout = winners.reduce((sum, p) => sum + Number(p.shares) * 100, 0);
+        const decTotalPayout = winners.reduce((sum, p) => sum.plus(new Prisma.Decimal(p.shares).mul(100)), new Prisma.Decimal(0));
 
         // flatten winners and losers
         const winnerUpdates = winners.flatMap(p => {
-            const payout = Number(p.shares) * 100;
-            const pnlDelta = payout - Number(p.avgCost) * Number(p.shares);
+            const decShares = new Prisma.Decimal(p.shares);
+            const decAvgCost = new Prisma.Decimal(p.avgCost);
+            const payout = decShares.mul(100);
+            const pnlDelta = payout.minus(decAvgCost.mul(decShares));
             return [
                 tx.user.update({
                     where: { id: p.userId },
@@ -59,10 +62,13 @@ export async function resolveMarket(input: { marketId: number, winningOutcomeId:
             ]
         })
 
-        const loserUpdates = losers.flatMap(p => {
-            tx.position.update({
+        const loserUpdates = losers.map(p => {
+            const decShares = new Prisma.Decimal(p.shares);
+            const decAvgCost = new Prisma.Decimal(p.avgCost);
+            const loss = decAvgCost.mul(decShares);
+            return tx.position.update({
                 where: { id: p.id },
-                data: { shares: 0, realizedPnl: { decrement: Number(p.avgCost) * Number(p.shares) } }
+                data: { shares: 0, realizedPnl: { decrement: loss } }
             })
         })
 
@@ -79,7 +85,7 @@ export async function resolveMarket(input: { marketId: number, winningOutcomeId:
 
             tx.user.update({
                 where: { id: treasuryId },
-                data: { money: { decrement: totalPayout } }
+                data: { money: { decrement: decTotalPayout } }
             }),
 
             ...winnerUpdates,

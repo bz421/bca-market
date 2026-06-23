@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { Market, NotificationType, ResolutionType, MarketStatus } from '../generated/prisma/client';
 import { inngest } from "@/lib/inngest";
+import { Prisma } from "@/app/generated/prisma/client";
 
 export async function refundMarket(market: Market) {
     const refundsByUser = await prisma.$transaction(async (tx) => {
@@ -18,11 +19,13 @@ export async function refundMarket(market: Market) {
             include: { outcome: true }
         })
 
-        const refundsByUser = new Map<number, number>();
+        const refundsByUser = new Map<number, Prisma.Decimal>();
 
         for (const position of positions) {
-            const refund = Number(position.shares) * Number(position.avgCost);
-            refundsByUser.set(position.userId, (refundsByUser.get(position.userId) ?? 0) + refund);
+            const decShares = new Prisma.Decimal(position.shares);
+            const decAvgCost = new Prisma.Decimal(position.avgCost);
+            const refund = decShares.mul(decAvgCost);
+            refundsByUser.set(position.userId, (refundsByUser.get(position.userId) ?? new Prisma.Decimal(0)).plus(refund));
         }
 
         await Promise.all(Array.from(refundsByUser.entries()).map(([userId, refundAmount]) =>
@@ -68,7 +71,7 @@ export async function refundMarket(market: Market) {
         data: {
             marketId: market.id,
             title: market.title,
-            refunds: Array.from(refundsByUser.entries()).map(([userId, amount]) => ({ userId, amount }))
+            refunds: Array.from(refundsByUser.entries()).map(([userId, amount]) => ({ userId, amount: amount.toNumber() }))
         }
     })
 
