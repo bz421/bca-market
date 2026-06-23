@@ -130,7 +130,7 @@ export async function resolveMarket(input: { marketId: number, winningOutcomeId:
         data: {
             marketId: input.marketId,
             title: resolveContext.marketTitle,
-            winningOutcome: resolveContext.winningOutcomeName,
+            winningOutcomeName: resolveContext.winningOutcomeName,
             positions: resolveContext.positions
         }
     })
