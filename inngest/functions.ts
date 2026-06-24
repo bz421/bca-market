@@ -299,7 +299,7 @@ export const onMarketDigest = inngest.createFunction(
         triggers: [
             { cron: 'TZ=America/New_York 30 7 * * *' },
             { cron: 'TZ=America/New_York 30 12 * * *' },
-            { cron: 'TZ=America/New_York 0 18 * * *' },
+            { cron: 'TZ=America/New_York 30 20 * * *' },
         ]
     },
     async ({ step }) => {
