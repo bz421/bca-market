@@ -73,9 +73,9 @@ export async function executeTrade(
                 throw new Error('Cannot reduce shares below zero'); 
             }
 
-            const tradeCost = side === 'buy' ? Math.max((C(q_new, b) - C(q, b)) * 100, shares * 0.10) : (C(q, b) - C(q_new, b)) * 100;
+            const tradeCost = side === 'buy' ? Math.max((C(q_new, b) - C(q, b)) * 100, 0.01) : (C(q, b) - C(q_new, b)) * 100;
             const decTradeCost = new Prisma.Decimal(tradeCost);
-            const decTransactionFee = side === 'buy' ? Prisma.Decimal.max(decTradeCost.mul(0.03), 0.50) : new Prisma.Decimal(0);
+            const decTransactionFee = side === 'buy' ? Prisma.Decimal.max(decTradeCost.mul(0.03), 0.01) : new Prisma.Decimal(0);
             const decTotalCost = decTradeCost.plus(decTransactionFee);
 
             const decAvgPrice = decTradeCost.div(decShares);
