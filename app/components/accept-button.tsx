@@ -35,8 +35,8 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    async function handleSubmit(event: React.SubmitEvent<HTMLFormElement>) {
-        event.preventDefault();
+    async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+        e.preventDefault();
         setError(null);
         setIsSubmitting(true);
 

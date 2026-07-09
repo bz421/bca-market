@@ -168,7 +168,7 @@ export default async function SettingsPage() {
                                             <h2 className="text-lg font-semibold text-zinc-950 group-hover:text-zinc-700">
                                                 {market.title}
                                             </h2>
-                                            <p className="mt-1 line-clamp-2 text-sm text-zinc-600">
+                                            <p className="mt-1 line-clamp-2 whitespace-pre-wrap text-sm text-zinc-600">
                                                 {market.description}
                                             </p>
                                             <p className="mt-2 text-xs text-zinc-400">

@@ -213,7 +213,7 @@ export default async function MarketPage({
                                     {market.title}
                                 </h1>
 
-                                <p className="mt-2 max-w-3xl text-zinc-600">
+                                <p className="mt-2 max-w-3xl whitespace-pre-wrap text-zinc-600">
                                     {market.description}
                                 </p>
 
