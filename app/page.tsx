@@ -88,6 +88,7 @@ export default async function Home() {
   const visibleMarkets = markets.filter((market) => {
     if (market.status !== 'PENDING') return true;
     if (user?.admin) return true;
+    if (market.hidden) return false;
     return user?.id === market.creatorId.toString();
   });
 
@@ -187,9 +188,9 @@ export default async function Home() {
                 No markets yet.
               </section>
             ) : (
-                <div className="columns-1 md:columns-2 xl:columns-3 2xl:columns-4 gap-6">
-                {visibleMarkets.map((market) => (
-                  <div key={market.id} className="break-inside-avoid mb-6">
+              <div className="columns-1 md:columns-2 xl:columns-3 2xl:columns-4 gap-6">
+                {visibleMarkets.map((market) =>
+                  (!market.hidden || session.user.admin) && (<div key={market.id} className="break-inside-avoid mb-6">
                     <MarketCard
                       key={market.id}
                       market={{
@@ -203,10 +204,12 @@ export default async function Home() {
                           name: outcome.name,
                           price: outcome.price,
                         })),
+                        hidden: market.hidden,
                       }}
+                      isAdmin={session.user.admin || false}
                     />
-                  </div>
-                ))}
+                  </div>)
+                )}
               </div>
             )}
           </section>

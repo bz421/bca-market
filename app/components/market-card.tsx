@@ -6,6 +6,9 @@ import { useState } from "react";
 import LocalDateTime from "./local-date-time";
 
 import { CircleCheckBig } from 'lucide-react';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/app/components/ui/context-menu";
+
+import toggleMarketHidden from "@/app/actions/toggleMarketHidden";
 
 type Outcome = {
   id: number;
@@ -21,6 +24,7 @@ type MarketCardProps = {
     closeTime: string;
     outcomes: Outcome[];
     resolvedOutcomeId?: number | null;
+    hidden: boolean;
   };
 };
 
@@ -32,15 +36,16 @@ function statusClass(status: string) {
   return "bg-zinc-100 text-zinc-700";
 }
 
-export default function MarketCard({ market }: MarketCardProps) {
+export default function MarketCard({ market, isAdmin }: MarketCardProps & { isAdmin?: boolean }) {
+
   const [expanded, setExpanded] = useState(false);
 
   const sortedOutcomes = [...market.outcomes].sort((a, b) => b.price - a.price);
   const visibleOutcomes = expanded ? sortedOutcomes : sortedOutcomes.slice(0, 3);
   const hasMore = sortedOutcomes.length > 4 || market.title.length > 60;
 
-  return (
-    <Link href={`/markets/${market.id}`} className="min-w-0 flex-1">
+  const card = (
+    <Link href={`/markets/${market.id}`} className={`min-w-0 flex-1 ${market.hidden ? "opacity-50" : ""}`}>
       <article
         className={`group flex flex-col rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:border-sky-200 hover:shadow-xl`}
       >
@@ -126,5 +131,23 @@ export default function MarketCard({ market }: MarketCardProps) {
         </div>
       </article>
     </Link>
-  );
+  )
+
+  if (!isAdmin) return card;
+
+  return (
+    <ContextMenu>
+      <ContextMenuTrigger render={card} />
+
+
+      <ContextMenuContent>
+        <ContextMenuItem onClick={async (e) => {
+          e.preventDefault();
+          await toggleMarketHidden(market.id, !market.hidden);
+        }}>
+          {market.hidden ? "Unhide" : "Hide"}
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
+  )
 }

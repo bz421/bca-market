@@ -63,6 +63,7 @@ model Market {
   positions         Position[]
   trades            Trade[]
   sentInDigest      Boolean      @default(false)
+  hidden            Boolean      @default(false)
 
   @@index([status])
   @@index([closeTime])

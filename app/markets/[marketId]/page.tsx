@@ -28,15 +28,17 @@ export async function generateMetadata({
 }: {
     params: Promise<{ marketId: string }>;
 }): Promise<Metadata> {
+    const session = await getServerSession(authOptions);
     const marketId = await params.then((p) => Number(p.marketId));
     if (!Number.isInteger(marketId)) return { title: "Market Not Found" };
 
     const market = await prisma.market.findUnique({
         where: { id: marketId },
-        select: { title: true, description: true },
+        select: { title: true, description: true, hidden: true },
     });
 
     if (!market) return { title: "Market Not Found" };
+    if (market.hidden && !session?.user?.admin) return { title: "Market Not Found" };
 
     return {
         title: market.title,
@@ -134,6 +136,10 @@ export default async function MarketPage({
     });
 
     if (!market) {
+        notFound();
+    }
+
+    if (market.hidden && !session.user.admin) {
         notFound();
     }
 

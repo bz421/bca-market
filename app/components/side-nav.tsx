@@ -33,6 +33,7 @@ export default async function SideNav({ currentMarketId, unreadCount }: SideNavP
         { status: { not: "RESOLVED" } },
         { resolvedAt: { gte: sevenDaysAgo } },
       ],
+      ...(user?.admin ? {} : { hidden: false }),
     },
     orderBy: [{ closeTime: "asc" }, { createdAt: "desc" }],
     take: 20,
