@@ -12,16 +12,12 @@ import { Metadata } from 'next';
 export const metadata: Metadata = { title: 'Portfolio' }
 
 function formatStringToCurrency(value: string): string {
-    const [whole, frac] = value.split(".");
-    if (!frac) return `${whole}.00`;
-    const cents = frac.slice(0, 2);
-    const roundDigit = frac[2];
-    if (roundDigit >= "5") {
-        const value = BigInt(cents) + BigInt(1);
-        if (value === BigInt(100)) return `${(BigInt(whole) + BigInt(1)).toString()}.00`;
-        return `${whole}.${value.toString().padStart(2, "0")}`;
-    }
-    return `${whole}.${cents}`;
+    const num = Number(value);
+    if (Number.isNaN(num)) return "0.00";
+    return num.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    });
 }
 
 function fmt(n: number) {

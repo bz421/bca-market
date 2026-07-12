@@ -33,7 +33,7 @@ export async function acceptMarket(input: AcceptMarketInput) {
         .filter(Boolean);
     const closeTime = new Date(input.closeTime);
 
-    if (!title || !description || !Number.isInteger(input.liquidity) || outcomes.length === 0 || Number.isNaN(closeTime.getTime())) {
+    if (!title || !description || !Number.isInteger(input.liquidity) || input.liquidity <= 0 || outcomes.length === 0 || Number.isNaN(closeTime.getTime())) {
         throw new Error("Invalid approval request");
     }
 

@@ -22,6 +22,12 @@ export async function executeTrade(
     side: "buy" | "sell"
 ): Promise<{ success: boolean; error?: string }> {
     if (!Number.isInteger(shares) || shares <= 0 || shares > 1000) throw new Error('Invalid share amount');
+    
+    const treasuryId = Number(process.env.TREASURY_ACCOUNT_ID);
+    if (!treasuryId) {
+        return { success: false, error: "Treasury user ID not configured" };
+    }
+
     try {
         const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
@@ -30,6 +36,9 @@ export async function executeTrade(
 
         // transaction to ensure trade atomicity (cannot be partially executed)
         const notifContext = await prisma.$transaction(async (tx) => {
+            // lock the market row to prevent race conditions
+            await tx.$queryRaw`SELECT id FROM "Market" WHERE id = ${marketId} FOR UPDATE`;
+
             const [user, market, position] = await Promise.all([
                 tx.user.findUnique({ where: { email: session.user.email! } }),
                 tx.market.findUnique({
@@ -116,7 +125,7 @@ export async function executeTrade(
 
                 // exchange with treasury
                 tx.user.update({
-                    where: { id: Number(process.env.TREASURY_ACCOUNT_ID) },
+                    where: { id: treasuryId },
                     data: {
                         money: side === 'buy' ? { increment: decTotalCost } : { decrement: decTotalCost }
                     }

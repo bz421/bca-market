@@ -18,24 +18,12 @@ export const metadata: Metadata = { title: 'Markets' }
 
 
 function formatStringToCurrency(value: string): string {
-  // console.log(`Input: ${value}`)
-  const [whole, frac] = value.split('.');
-  if (!frac) return `${whole}.00`;
-
-  let cents = frac.slice(0, 2);
-  const roundDigit = frac[2];
-
-  if (roundDigit >= '5') {
-    let value = BigInt(cents) + BigInt(1); // cents shouldn't overflow but just in case
-
-    if (value === BigInt(100)) {
-      return `${(BigInt(whole) + BigInt(1)).toString()}.00`;
-    }
-
-    return `${whole}.${value.toString().padStart(2, '0')}`;
-  }
-
-  return `${whole}.${cents}`;
+  const num = Number(value);
+  if (Number.isNaN(num)) return "0.00";
+  return num.toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
 }
 
 function p(q: number[], b: number): number[] {

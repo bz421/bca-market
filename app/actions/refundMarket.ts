@@ -1,12 +1,37 @@
 'use server'
 
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Market, NotificationType, ResolutionType, MarketStatus } from '../generated/prisma/client';
 import { inngest } from "@/lib/inngest";
 import { Prisma } from "@/app/generated/prisma/client";
 
 export async function refundMarket(market: Market) {
+    const session = await getServerSession(authOptions);
+
+    if (!session?.user?.admin || !session.user.id) {
+        throw new Error("Unauthorized");
+    }
+
+    const treasuryId = Number(process.env.TREASURY_ACCOUNT_ID);
+    if (!treasuryId) {
+        throw new Error("Treasury user ID not configured");
+    }
+
     const refundsByUser = await prisma.$transaction(async (tx) => {
+        const dbMarket = await tx.market.findUnique({
+            where: { id: market.id }
+        });
+
+        if (!dbMarket) {
+            throw new Error("Market not found");
+        }
+
+        if (dbMarket.status !== 'OPEN' && dbMarket.status !== 'CLOSED') {
+            throw new Error("Market must be open or closed to be refunded");
+        }
+
         const admins = await tx.user.findMany({
             where: { admin: true }
         })
@@ -28,6 +53,12 @@ export async function refundMarket(market: Market) {
             refundsByUser.set(position.userId, (refundsByUser.get(position.userId) ?? new Prisma.Decimal(0)).plus(refund));
         }
 
+        const decTotalRefund = Array.from(refundsByUser.values()).reduce(
+            (sum, r) => sum.plus(r),
+            new Prisma.Decimal(0)
+        );
+
+        // refund users
         await Promise.all(Array.from(refundsByUser.entries()).map(([userId, refundAmount]) =>
             tx.user.update({
                 where: { id: userId },
@@ -36,6 +67,14 @@ export async function refundMarket(market: Market) {
                 }
             })
         ))
+
+        // deduct from treasury
+        await tx.user.update({
+            where: { id: treasuryId },
+            data: {
+                money: { decrement: decTotalRefund }
+            }
+        })
 
         await tx.market.update({
             where: { id: market.id },
