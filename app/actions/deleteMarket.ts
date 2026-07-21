@@ -7,7 +7,7 @@ import { Market, NotificationType } from '../generated/prisma/client';
 
 import { inngest } from '@/lib/inngest';
 
-export async function deleteMarket(market: Market) {
+export async function deleteMarket(market: Market, message?: string) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.admin || !session.user.id) {
@@ -57,7 +57,8 @@ export async function deleteMarket(market: Market) {
             marketId: market.id,
             title: market.title,
             creatorId: market.creatorId,
-            creatorName: ''
+            creatorName: '',
+            message: message
         }
     })
 

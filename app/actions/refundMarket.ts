@@ -7,7 +7,7 @@ import { Market, NotificationType, ResolutionType, MarketStatus } from '../gener
 import { inngest } from "@/lib/inngest";
 import { Prisma } from "@/app/generated/prisma/client";
 
-export async function refundMarket(market: Market) {
+export async function refundMarket(market: Market, message?: string) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.admin || !session.user.id) {
@@ -110,7 +110,8 @@ export async function refundMarket(market: Market) {
         data: {
             marketId: market.id,
             title: market.title,
-            refunds: Array.from(refundsByUser.entries()).map(([userId, amount]) => ({ userId, amount: amount.toNumber() }))
+            refunds: Array.from(refundsByUser.entries()).map(([userId, amount]) => ({ userId, amount: amount.toNumber() })),
+            message: message
         }
     })
 

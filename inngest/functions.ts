@@ -97,7 +97,7 @@ export const onMarketAccepted = inngest.createFunction(
     },
 
     async ({ event, step }) => {
-        const { marketId, title, description, creatorId, creatorName } = event.data
+        const { marketId, title, description, creatorId, creatorName, message } = event.data
 
         // Notify the creator first
         const creator = await step.run('fetch-creator', () =>
@@ -113,6 +113,7 @@ export const onMarketAccepted = inngest.createFunction(
                     html: emailHtml(
                         'Market Approved',
                         `<p>Your market <strong>"${title}"</strong> has been approved and is now open for trading.</p>
+                         ${message ? `<p style="margin:16px 0;padding:12px 16px;background:#f4f4f5;border-radius:8px;font-style:italic;color:#52525b;white-space:pre-wrap;">"${message}"</p>` : ''}
                          <p><a href="${process.env.NEXTAUTH_URL}/markets/${marketId}" style="background:#09090b;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:500;font-size:14px;">View Market</a></p>`
                     ),
                 })
@@ -163,7 +164,7 @@ export const onMarketRejected = inngest.createFunction(
         triggers: [marketRejected],
     },
     async ({ event, step }) => {
-        const { title, creatorId } = event.data
+        const { title, creatorId, message } = event.data
 
         const creator = await step.run('fetch-creator', () =>
             prisma.user.findUnique({ where: { id: creatorId }, select: { email: true } })
@@ -179,6 +180,7 @@ export const onMarketRejected = inngest.createFunction(
                 html: emailHtml(
                     'Market Not Approved',
                     `<p>Your market request <strong>"${title}"</strong> was not approved at this time.</p>
+                     ${message ? `<p style="margin:16px 0;padding:12px 16px;background:#f4f4f5;border-radius:8px;font-style:italic;color:#52525b;white-space:pre-wrap;">"${message}"</p>` : ''}
                      <p>You can submit a new request from the home page.</p>`
                 ),
             })
@@ -192,7 +194,7 @@ export const onMarketRefunded = inngest.createFunction(
         triggers: [marketRefunded],
     },
     async ({ event, step }) => {
-        const { title, refunds } = event.data
+        const { title, refunds, message } = event.data
 
         const userIds = refunds.map(r => r.userId)
         const users = await step.run('fetch-users', () =>
@@ -219,9 +221,10 @@ export const onMarketRefunded = inngest.createFunction(
                         html: emailHtml(
                             'Market Refunded',
                             `<p>The market <strong>"${title}"</strong> has been cancelled and your position has been refunded.</p>
-                             <p style="padding:12px 16px;background:#f4f4f5;border-radius:8px;font-size:15px;">
+                             <p style="padding:12px 16px;background:#f4f4f5;border-radius:8px;font-size:15px;margin-bottom:16px;">
                                Amount returned: <strong>$${r.amount.toFixed(2)}</strong>
-                             </p>`
+                             </p>
+                             ${message ? `<p style="margin:16px 0;padding:12px 16px;background:#f4f4f5;border-radius:8px;font-style:italic;color:#52525b;white-space:pre-wrap;">"${message}"</p>` : ''}`
                         ),
                     }))
                 )

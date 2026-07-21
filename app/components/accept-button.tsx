@@ -34,6 +34,7 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
     );
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [message, setMessage] = useState("");
 
     async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -67,6 +68,7 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
                 liquidity: parsedLiquidity,
                 outcomes,
                 closeTime: new Date(closeTime).toISOString(),
+                message: message.trim() || undefined,
             });
 
             setOpen(false);
@@ -175,6 +177,17 @@ export default function AcceptButton({ market }: { market: PendingMarket }) {
                                     className="min-h-28 w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 outline-none focus:border-zinc-900"
                                     placeholder="One outcome per line"
                                     required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-zinc-700">
+                                    Message (Optional)
+                                </label>
+                                <textarea
+                                    value={message}
+                                    onChange={(event) => setMessage(event.target.value)}
+                                    className="min-h-20 w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 outline-none focus:border-zinc-900"
                                 />
                             </div>
 

@@ -17,6 +17,7 @@ export type AcceptMarketInput = {
     liquidity: number;
     outcomes: string[];
     closeTime: string;
+    message?: string;
 };
 
 export async function acceptMarket(input: AcceptMarketInput) {
@@ -96,7 +97,8 @@ export async function acceptMarket(input: AcceptMarketInput) {
             title,
             description,
             creatorId: input.creatorId,
-            creatorName: `${notifContext.creator.firstName} ${notifContext.creator.lastName}`.trim() || notifContext.creator.email
+            creatorName: `${notifContext.creator.firstName} ${notifContext.creator.lastName}`.trim() || notifContext.creator.email,
+            message: input.message
         }
     })
 }

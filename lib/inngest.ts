@@ -33,6 +33,7 @@ export type MarketAcceptedData = {
     description: string
     creatorId: number
     creatorName: string
+    message?: string
 }
 
 export const marketAccepted = eventType('market/accepted', {
@@ -44,6 +45,7 @@ export type MarketRejectedData = {
     title: string
     creatorId: number
     creatorName: string
+    message?: string
 }
 
 export const marketRejected = eventType('market/rejected', {
@@ -57,6 +59,7 @@ export type MarketRefundedData = {
         userId: number
         amount: number
     }>
+    message?: string
 }
 
 export const marketRefunded = eventType('market/refunded', {
