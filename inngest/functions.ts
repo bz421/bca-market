@@ -239,7 +239,7 @@ export const onMarketResolved = inngest.createFunction(
         triggers: [marketResolved],
     },
     async ({ event, step }) => {
-        const { title, winningOutcomeName, positions } = event.data
+        const { title, winningOutcomeName, positions, message } = event.data
 
         const userIds = positions.map(p => p.userId)
         const users = await step.run('fetch-users', () =>
@@ -273,6 +273,7 @@ export const onMarketResolved = inngest.createFunction(
                                        <strong style="color:#15803d;">✓ Your outcome won: ${p.outcomeName}</strong><br>
                                        <span style="color:#166534;">Payout: <strong>$${p.payout.toFixed(2)}</strong></span>
                                      </p>
+                                     ${message ? `<p style="margin:16px 0;padding:12px 16px;background:#f4f4f5;border-radius:8px;font-style:italic;color:#52525b;white-space:pre-wrap;">"${message}"</p>` : ''}
                                      <p>Your balance has been updated.</p>`
                                 ),
                             }
@@ -286,7 +287,8 @@ export const onMarketResolved = inngest.createFunction(
                                      <p style="padding:12px 16px;background:#f4f4f5;border-radius:8px;">
                                        <strong>Winning outcome:</strong> ${winningOutcomeName}<br>
                                        <span style="color:#71717a;">Your outcome <strong>${p.outcomeName}</strong> did not win this time.</span>
-                                     </p>`
+                                     </p>
+                                     ${message ? `<p style="margin:16px 0;padding:12px 16px;background:#f4f4f5;border-radius:8px;font-style:italic;color:#52525b;white-space:pre-wrap;">"${message}"</p>` : ''}`
                                 ),
                             }
                     })

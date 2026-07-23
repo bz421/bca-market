@@ -9,7 +9,7 @@ import { NotificationType, ResolutionType } from '../generated/prisma/client';
 import { inngest } from "@/lib/inngest";
 import { Prisma } from "@/app/generated/prisma/client";
 
-export async function resolveMarket(input: { marketId: number, winningOutcomeId: number }): Promise<void> {
+export async function resolveMarket(input: { marketId: number, winningOutcomeId: number, message?: string }): Promise<void> {
     const session = await getServerSession(authOptions);
     if (!session?.user?.admin || !session.user.id) throw new Error("Unauthorized");
 
@@ -137,7 +137,8 @@ export async function resolveMarket(input: { marketId: number, winningOutcomeId:
             marketId: input.marketId,
             title: resolveContext.marketTitle,
             winningOutcomeName: resolveContext.winningOutcomeName,
-            positions: resolveContext.positions
+            positions: resolveContext.positions,
+            message: input.message
         }
     })
 }

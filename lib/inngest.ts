@@ -76,6 +76,7 @@ export type MarketResolvedData = {
         outcomeName: string
         payout: number
     }>
+    message?: string
 }
 
 export const marketResolved = eventType('market/resolved', {

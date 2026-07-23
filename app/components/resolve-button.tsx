@@ -20,6 +20,7 @@ export default function ResolveButton({ market }: {
     const [winningOutcomeId, setWinningOutcomeId] = useState<number | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [message, setMessage] = useState("");
 
     const handleResolve = async () => {
         if (!winningOutcomeId) return
@@ -27,7 +28,7 @@ export default function ResolveButton({ market }: {
         setIsSubmitting(true);
 
         try {
-            await resolveMarket({ marketId: market.id, winningOutcomeId });
+            await resolveMarket({ marketId: market.id, winningOutcomeId, message: message.trim() || undefined });
             setOpen(false);
             router.refresh();
         } catch (err) {
@@ -115,6 +116,17 @@ export default function ResolveButton({ market }: {
                                 </div>
                             </div>
 
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-zinc-700">
+                                    Message (Optional)
+                                </label>
+                                <textarea
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    className="min-h-20 w-full rounded-lg border border-zinc-300 px-3 py-2 text-zinc-900 outline-none focus:border-zinc-900 text-sm"
+                                />
+                            </div>
+
                             {winningOutcomeId !== null && (() => {
                                 const outcome = market.outcomes.find(o => o.id === winningOutcomeId)!
                                 const totalPayout = outcome.sharesOutstanding * 100
@@ -142,7 +154,10 @@ export default function ResolveButton({ market }: {
 
                             <div className="flex gap-2 pt-1">
                                 <button
-                                    onClick={() => setOpen(false)}
+                                    onClick={() => {
+                                        setOpen(false)
+                                        setMessage("")
+                                    }}
                                     disabled={isSubmitting}
                                     className="flex-1 rounded-xl border border-zinc-200 py-2.5 text-sm font-medium text-zinc-600 hover:bg-zinc-50 disabled:opacity-50 transition-colors cursor-pointer"
                                 >
@@ -153,7 +168,7 @@ export default function ResolveButton({ market }: {
                                     disabled={winningOutcomeId === null || isSubmitting}
                                     className="flex-1 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
                                 >
-                                    {isSubmitting ? 'Resolving…' : 'Confirm Resolution'}
+                                    {isSubmitting ? 'Resolving...' : 'Confirm Resolution'}
                                 </button>
                             </div>
 

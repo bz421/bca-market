@@ -202,7 +202,7 @@ export default function TradingPanel({ selectedOutcome, selectedIndex, q, b, pri
                     }`}
             >
                 {isPending
-                    ? 'Processing…'
+                    ? 'Processing...'
                     : validShares
                         ? `${side === 'buy' ? 'Buy' : 'Sell'} ${shares} Share${shares !== 1 ? 's' : ''}`
                         : side === 'buy' ? 'Buy Shares' : 'Sell Shares'
