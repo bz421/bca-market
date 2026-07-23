@@ -55,11 +55,13 @@ export default function MarketChart({ data, outcomeNames }: Props) {
             tickFormatter={(v) => `${v}%`}
           />
           <Tooltip labelStyle={{ color: "black", borderRadius: 8 }}
-            labelFormatter={(ts) =>
-              new Date(ts).toLocaleString('en-US', {
+            labelFormatter={(_, payload) => {
+              const ts = payload?.[0]?.payload?.timestamp;
+              if (ts === null) return '';
+              return new Date(ts).toLocaleString('en-US', {
                 month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
-              })
-            }
+              });
+            }}
             formatter={(value, name) => {
               const num = typeof value === 'number' ? value : Number(value);
               return [`${Number.isFinite(num) ? num.toFixed(1) : '0.0'}%`, String(name)];
