@@ -163,6 +163,7 @@ export async function executeTrade(
             return {
                 userId: user.id,
                 firstName: user.firstName ?? 'User',
+                lastName: user.lastName ?? '[EMPTY]',
                 marketTitle: market.title,
                 outcomeName: market.outcomes[outcomeIndex].name,
                 totalCost: decTotalCost.toNumber(),
@@ -190,7 +191,7 @@ export async function executeTrade(
                         userId: admin.id,
                         type: notifContext.side === 'buy' ? NotificationType.TRADE_BUY : NotificationType.TRADE_SELL,
                         title: notifContext.side === 'buy' ? 'New buy' : 'New sell', 
-                        body: `${notifContext.firstName} ${notifContext.side === 'buy' ? 'purchased' : 'sold'} ${notifContext.shares} shares of "${notifContext.outcomeName}" in market "${notifContext.marketTitle}".`
+                        body: `${notifContext.firstName} ${notifContext.lastName} ${notifContext.side === 'buy' ? 'purchased' : 'sold'} ${notifContext.shares} shares of "${notifContext.outcomeName}" in market "${notifContext.marketTitle}".`
                     }))
             ]
         })
