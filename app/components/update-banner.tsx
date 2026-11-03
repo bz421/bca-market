@@ -34,18 +34,15 @@ export const UPDATE_CARDS: UpdateCardItem[] = [
     ),
   },
   {
-    id: 'discrete-2-fix',
-    title: 'Market Clarification',
+    id: 'november-2026',
+    title: 'Happy November!',
     content: (
       <>
-        <p className="mb-4">The market <Link href="/markets/111" className="text-blue-600 hover:underline">At least 5 students drop Discrete 2 by November?</Link>
-        {" "}(previously "At least 5 freshmen drop Discrete 2 by November?")
-        has been reworded to clarify that it refers to students currently in Discrete 2, not current freshmen.</p>
-
-        <p>The market was created last year, so the original wording referred to the freshmen of that year. The market is still valid and will resolve as normal.</p>
+        Happy November BCA Market! Stipends have been paid out to all users with a net worth below $6000. 
       </>
-    )
-  }
+    ),
+  },
+
 ];
 
 const DISMISSED_CARDS_KEY = 'dismissed_update_cards';
